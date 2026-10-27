@@ -1,26 +1,223 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta viva, sem os códigos visuais de cassino (sem dourado, neon roxo ou vermelho com preto). */
+  --ardosia: #141b3d;
+  --ardosia-suave: #4a5276;
+  --mare: #3b4cff;
+  --mare-escura: #2533c9;
+  --ceu: #e9ecff;
+  --ceu-fundo: #f5f6ff;
+  --nuvem: #cdd2f0;
+  --sol: #ffc531;
+  --sol-claro: #fff0bf;
+  --coral: #ff5d3a;
+  --coral-claro: #ffe2da;
+  --menta: #12c98d;
+  --menta-claro: #d4f8ea;
+  --lima: #c4f04a;
+  --telha: #d7263d;
+  --branco: #ffffff;
+  --escala-fonte: 1;
+}
+
+:root[data-contraste="alto"] {
+  --ardosia: #000000;
+  --ardosia-suave: #1e2a30;
+  --mare: #1a24a8;
+  --mare-escura: #0f1670;
+  --ceu: #ffffff;
+  --ceu-fundo: #ffffff;
+  --nuvem: #5b6e78;
+  --sol: #8a5a00;
+  --sol-claro: #fff1cc;
+  --coral: #a3260a;
+  --coral-claro: #ffe2da;
+  --menta: #00704b;
+  --menta-claro: #d4f8ea;
+  --lima: #4d6a00;
+  --telha: #8a1f0d;
+}
+
+:root[data-fonte="grande"] {
+  --escala-fonte: 1.18;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ardosia: var(--ardosia);
+  --color-ardosia-suave: var(--ardosia-suave);
+  --color-mare: var(--mare);
+  --color-mare-escura: var(--mare-escura);
+  --color-ceu: var(--ceu);
+  --color-ceu-fundo: var(--ceu-fundo);
+  --color-nuvem: var(--nuvem);
+  --color-sol: var(--sol);
+  --color-sol-claro: var(--sol-claro);
+  --color-telha: var(--telha);
+  --color-coral: var(--coral);
+  --color-coral-claro: var(--coral-claro);
+  --color-menta: var(--menta);
+  --color-menta-claro: var(--menta-claro);
+  --color-lima: var(--lima);
+  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --font-titulo: var(--font-bricolage), var(--font-atkinson), system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  font-size: calc(100% * var(--escala-fonte));
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ceu-fundo);
+  color: var(--ardosia);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-titulo);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 3px solid var(--sol);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@layer components {
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  background: var(--mare);
+  color: var(--branco);
+  transition: background-color 0.15s;
+}
+.botao:hover {
+  background: var(--mare-escura);
+}
+.botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.botao-linha {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
+  border: 2px solid var(--mare);
+  color: var(--mare-escura);
+  background: transparent;
+}
+.botao-linha:hover {
+  background: var(--ceu);
+}
+
+.campo {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--nuvem);
+  background: var(--branco);
+  color: var(--ardosia);
+}
+.campo:focus {
+  border-color: var(--mare);
+  outline: none;
+}
+
+.rotulo {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.bloco {
+  background: var(--branco);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+}
+
+.opcao {
+  border: 2px solid var(--nuvem);
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  background: var(--branco);
+  width: 100%;
+}
+.opcao[aria-pressed="true"],
+.opcao[aria-checked="true"] {
+  border-color: var(--mare);
+  background: var(--ceu);
+  box-shadow: inset 0 0 0 1px var(--mare);
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+:root[data-movimento="reduzido"] *,
+:root[data-movimento="reduzido"] *::before,
+:root[data-movimento="reduzido"] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Celebração curta e previsível quando uma missão ou pagamento é registrado */
+@keyframes subir-pontos {
+  0% { opacity: 0; transform: translateY(8px) scale(0.9); }
+  20% { opacity: 1; transform: translateY(0) scale(1.05); }
+  80% { opacity: 1; transform: translateY(-14px) scale(1); }
+  100% { opacity: 0; transform: translateY(-24px); }
+}
+.pontos-subindo {
+  animation: subir-pontos 1.6s ease-out forwards;
+}
+@keyframes pulsar {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+.pulsar {
+  animation: pulsar 0.6s ease-out;
+}
+@keyframes onda {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.onda {
+  animation: onda 4s linear infinite;
+}
+@keyframes entrar-cartao {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.entrar-cartao {
+  animation: entrar-cartao 0.45s ease-out both;
 }

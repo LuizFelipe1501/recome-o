@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Recomeço
 
-## Getting Started
+Protótipo para o hackathon Rolê que Rende (BB Digital Week 2026), desafio "Além da Aposta: caminhos para recomeçar".
 
-First, run the development server:
+Apoio no celular para quem quer parar ou diminuir as apostas e para quem está do lado:
+
+- **Botão "Estou com vontade"**: respiração em que o céu nublado abre a cada respiração, seguida de uma atividade curta escolhida pelo gatilho (vontade, dinheiro, emoção, recuperar perdas, pressão social).
+- **Trilha de missões**: pontos previsíveis por hábitos e missões. Missões feitas com o padrinho ou madrinha valem o dobro.
+- **Desenrolando sua vida com você**: dívidas viram missões de pagamento, ordem de ataque, desafio de poupança com meta animada, caminhos oficiais (Superendividamento, Registrato) e alerta de golpes.
+- **Família**: convite por código, compartilhamento escolhido pela pessoa, mensagens de apoio, sinais de alerta, roteiro de conversa e caminho de segurança.
+- **Apoio**: CVV 188, SAMU 192, teleatendimento do SUS (Meu SUS Digital), CAPS, Jogadores Anônimos, Ligue 180, Procon e Defensoria.
+- **Acessibilidade**: fonte Atkinson Hyperlegible, letra maior, contraste alto, menos movimento e leitura em voz alta.
+
+O conteúdo se baseia em TCC e entrevista motivacional e em estudos como GamblingLess, Help on Demand, e-Estesia, revisão Cochrane (2012) e LENAD III. Não substitui atendimento profissional. Não usa dados de clientes nem marca de casas de aposta.
+
+## Rodar localmente
 
 ```bash
+npm install
+cp .env.example .env.local   # opcional, para login com Supabase
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sem Supabase, use "Testar sem criar conta": os dados ficam só no navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Crie um projeto no Supabase.
+2. No SQL Editor, rode `supabase/schema.sql`.
+3. Em Authentication > Providers > Email, desligue "Confirm email" se quiser entrar sem confirmar o e-mail durante o hackathon.
+4. Preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` no `.env.local` e nas variáveis de ambiente da Vercel.
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16, React 19, Tailwind CSS 4, Supabase (Auth + Postgres com RLS).
