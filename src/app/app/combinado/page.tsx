@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Base, Titulo } from "@/components/ui";
+import { CartaoAcao } from "@/components/Jogo";
 import { useEstado } from "@/lib/estado";
 
 const ESPERA_HORAS = 72;
@@ -65,28 +66,23 @@ export default function Combinado() {
 
         <fieldset>
           <legend className="rotulo">O que eu vou fazer junto</legend>
-          <div className="space-y-2">
-            {passosPraticos.map((p) => (
-              <button
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {passosPraticos.map((p, i) => (
+              <CartaoAcao
                 key={p}
-                type="button"
-                role="checkbox"
-                aria-checked={passos.includes(p)}
-                className="opcao flex items-center gap-3"
-                onClick={() => setPassos(passos.includes(p) ? passos.filter((x) => x !== p) : [...passos, p])}
-              >
-                <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 ${passos.includes(p) ? "border-mare bg-mare text-white" : "border-nuvem"}`} aria-hidden="true">
-                  {passos.includes(p) ? "✓" : ""}
-                </span>
-                {p}
-              </button>
+                titulo={p}
+                cor={["var(--mare)", "var(--sol)", "var(--menta)", "var(--coral)", "var(--mare-escura)"][i % 5]}
+                feito={passos.includes(p)}
+                rotuloFeito="Vou fazer"
+                aoTocar={() => setPassos(passos.includes(p) ? passos.filter((x) => x !== p) : [...passos, p])}
+              />
             ))}
           </div>
         </fieldset>
 
         <button
           type="button"
-          className="botao w-full"
+          className="botao-jogo botao-jogo-azul w-full text-lg"
           onClick={() =>
             atualizar((e) => ({
               ...e,
@@ -147,7 +143,7 @@ export default function Combinado() {
               {liberaEm.toLocaleString("pt-BR", { weekday: "long", hour: "2-digit", minute: "2-digit" })}.
             </p>
           )}
-          <Link href="/app/crise" className="botao w-full">
+          <Link href="/app/crise" className="botao-jogo botao-jogo-azul w-full text-lg">
             Estou com vontade agora
           </Link>
           {t.pessoaConfianca && <p className="text-sm">Que tal avisar {t.pessoaConfianca} antes?</p>}

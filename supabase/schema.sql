@@ -117,3 +117,15 @@ $$;
 
 revoke all on function public.aceitar_convite (text) from public, anon;
 grant execute on function public.aceitar_convite (text) to authenticated;
+
+-- Lembretes diários (notificações push)
+create table if not exists public.lembretes (
+  user_id uuid primary key references auth.users on delete cascade,
+  inscricao jsonb not null,
+  horario text not null default '20:00',
+  ativo boolean not null default true,
+  atualizado timestamptz not null default now()
+);
+alter table public.lembretes enable row level security;
+create policy "lembretes do proprio usuario" on public.lembretes
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

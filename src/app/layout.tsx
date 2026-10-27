@@ -23,21 +23,33 @@ const bricolage = localFont({
   ],
 });
 
+const pixel = localFont({
+  variable: "--font-pixel",
+  display: "swap",
+  src: [
+    { path: "../fonts/silkscreen-latin-400-normal.woff2", weight: "400" },
+    { path: "../fonts/silkscreen-latin-700-normal.woff2", weight: "700" },
+  ],
+});
+
 export const metadata: Metadata = {
   title: "Recomeço",
+  applicationName: "Recomeço",
+  appleWebApp: { capable: true, title: "Recomeço", statusBarStyle: "default" },
+  icons: { icon: "/icone-192.png", apple: "/apple-touch-icon.png" },
   description:
     "Apoio para quem quer parar ou diminuir as apostas e para quem está do lado. Botão para os momentos de vontade, plano para as dívidas e espaço para a família.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3b4cff",
+  themeColor: "#fcfc30",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${atkinson.variable} ${bricolage.variable} h-full`}>
+    <html lang="pt-BR" className={`${atkinson.variable} ${bricolage.variable} ${pixel.variable} h-full`}>
       <body className="min-h-full">
         <ProvedorEstado>{children}</ProvedorEstado>
       </body>

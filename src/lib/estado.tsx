@@ -218,6 +218,7 @@ export function ProvedorEstado({ children }: { children: ReactNode }) {
     (e: Estado) => {
       if (modoRef.current === "demo") {
         gravarLocal(CHAVE_ESTADO_DEMO, e);
+        gravarLocal(`${CHAVE_ESTADO_DEMO}-${e.perfil.papel}`, e);
         return;
       }
       pendente.current = e;
@@ -255,8 +256,11 @@ export function ProvedorEstado({ children }: { children: ReactNode }) {
   );
 
   const entrarDemo = useCallback((papel: Papel) => {
-    const existente = lerLocal<Estado>(CHAVE_ESTADO_DEMO);
-    const e = existente && existente.perfil.papel === papel ? normalizar(existente) : estadoInicial(papel);
+    // Cada papel guarda o seu próprio teste, para dar para trocar sem perder nada
+    const atual = lerLocal<Estado>(CHAVE_ESTADO_DEMO);
+    if (atual) gravarLocal(`${CHAVE_ESTADO_DEMO}-${atual.perfil.papel}`, atual);
+    const salvo = lerLocal<Estado>(`${CHAVE_ESTADO_DEMO}-${papel}`);
+    const e = salvo && salvo.perfil.papel === papel ? normalizar(salvo) : estadoInicial(papel);
     gravarLocal(CHAVE_DEMO, true);
     gravarLocal(CHAVE_ESTADO_DEMO, e);
     setEstado(e);

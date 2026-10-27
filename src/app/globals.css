@@ -1,41 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  /* Paleta viva, sem os códigos visuais de cassino (sem dourado, neon roxo ou vermelho com preto). */
-  --ardosia: #141b3d;
-  --ardosia-suave: #4a5276;
-  --mare: #3b4cff;
-  --mare-escura: #2533c9;
-  --ceu: #e9ecff;
-  --ceu-fundo: #f5f6ff;
-  --nuvem: #cdd2f0;
-  --sol: #ffc531;
-  --sol-claro: #fff0bf;
-  --coral: #ff5d3a;
-  --coral-claro: #ffe2da;
-  --menta: #12c98d;
-  --menta-claro: #d4f8ea;
-  --lima: #c4f04a;
+  /* Cores inspiradas no Banco do Brasil: amarelo e azul. Sem logotipo. */
+  --ardosia: #0b1f4d;
+  --ardosia-suave: #46557e;
+  --mare: #3b53f0;
+  --mare-escura: #2537c4;
+  --ceu: #e7ebff;
+  --ceu-fundo: #f3f5ff;
+  --nuvem: #c9d0f2;
+  --sol: #fcfc30;
+  --sol-claro: #fefdc2;
+  --coral: #e0832f;
+  --coral-claro: #fde9d4;
+  --menta: #17b07a;
+  --menta-claro: #d3f5e7;
+  --lima: #fcfc30;
   --telha: #d7263d;
+  --caramelo: #d9893b;
   --branco: #ffffff;
   --escala-fonte: 1;
 }
 
 :root[data-contraste="alto"] {
   --ardosia: #000000;
-  --ardosia-suave: #1e2a30;
-  --mare: #1a24a8;
-  --mare-escura: #0f1670;
+  --ardosia-suave: #1d2747;
+  --mare: #1a2aa8;
+  --mare-escura: #0f1870;
   --ceu: #ffffff;
   --ceu-fundo: #ffffff;
-  --nuvem: #5b6e78;
-  --sol: #8a5a00;
-  --sol-claro: #fff1cc;
-  --coral: #a3260a;
-  --coral-claro: #ffe2da;
+  --nuvem: #4f5b82;
+  --sol: #fcfc30;
+  --sol-claro: #fefdc2;
+  --coral: #8f4300;
+  --coral-claro: #fde9d4;
   --menta: #00704b;
-  --menta-claro: #d4f8ea;
-  --lima: #4d6a00;
+  --menta-claro: #d3f5e7;
+  --lima: #fcfc30;
   --telha: #8a1f0d;
 }
 
@@ -61,6 +62,8 @@
   --color-lima: var(--lima);
   --font-sans: var(--font-atkinson), system-ui, sans-serif;
   --font-titulo: var(--font-bricolage), var(--font-atkinson), system-ui, sans-serif;
+  --font-pixel: var(--font-pixel), monospace;
+  --color-caramelo: var(--caramelo);
 }
 
 html {
@@ -89,7 +92,7 @@ p {
 }
 
 :focus-visible {
-  outline: 3px solid var(--sol);
+  outline: 3px solid var(--mare);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -221,3 +224,91 @@ p {
 .entrar-cartao {
   animation: entrar-cartao 0.45s ease-out both;
 }
+
+/* Jogo */
+.pixel {
+  font-family: var(--font-pixel), monospace;
+  letter-spacing: 0.02em;
+}
+.pixelado {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+}
+.botao-jogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  padding: 0.8rem 1.4rem;
+  border-radius: 1rem;
+  font-weight: 700;
+  background: var(--sol);
+  color: var(--ardosia);
+  box-shadow: 0 5px 0 #c9c900;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.botao-jogo:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #c9c900;
+}
+.botao-jogo-azul {
+  background: var(--mare);
+  color: #fff;
+  box-shadow: 0 5px 0 var(--mare-escura);
+}
+.botao-jogo-azul:active {
+  box-shadow: 0 1px 0 var(--mare-escura);
+}
+@keyframes respirar-mascote {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3%); }
+}
+.mascote-idle {
+  animation: respirar-mascote 1.6s steps(2) infinite;
+}
+@keyframes pular-mascote {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-22%); }
+  55% { transform: translateY(0); }
+  70% { transform: translateY(-8%); }
+}
+.mascote-pula {
+  animation: pular-mascote 0.9s ease-out 2;
+}
+@keyframes rabo {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.rabo-a { animation: rabo 0.5s steps(1) infinite; }
+.rabo-b { animation: rabo 0.5s steps(1) infinite reverse; }
+@keyframes piscar {
+  0%, 92%, 100% { opacity: 0; }
+  94%, 98% { opacity: 1; }
+}
+.piscar { animation: piscar 4s steps(1) infinite; }
+@keyframes surgir {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.surgir { animation: surgir 0.25s ease-out both; }
+@keyframes brilho {
+  0% { transform: scale(0.4) rotate(0deg); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: scale(1.4) rotate(45deg); opacity: 0; }
+}
+.brilho { animation: brilho 1.2s ease-out infinite; }
+@keyframes dano {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.dano { animation: dano 0.45s ease-out; }
+@keyframes girar { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.brilho-lento { animation: girar 18s linear infinite; }
+.sombra-jogo { box-shadow: 0 5px 0 var(--ardosia); }
+.borda-jogo { border: 3px solid var(--ardosia); }
+@keyframes balancar { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+.no-atual { animation: balancar 1.4s ease-in-out infinite; }

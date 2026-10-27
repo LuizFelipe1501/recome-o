@@ -80,11 +80,13 @@ export type Estado = {
     compartilhar: { progresso: boolean; humor: boolean; dividas: boolean };
     sinais: string[];
     meuCheckin: { data: string; como: number }[];
+    acoes: { data: string; tipo: string }[];
   };
   prefs: {
     fonte: "normal" | "grande";
     contraste: "normal" | "alto";
     movimento: "normal" | "reduzido";
+    lembrete: boolean;
   };
 };
 
@@ -117,8 +119,9 @@ export const estadoInicial = (papel: Papel = "apostador", nome = ""): Estado => 
     compartilhar: { progresso: true, humor: false, dividas: false },
     sinais: [],
     meuCheckin: [],
+    acoes: [],
   },
-  prefs: { fonte: "normal", contraste: "normal", movimento: "normal" },
+  prefs: { fonte: "normal", contraste: "normal", movimento: "normal", lembrete: false },
 });
 
 export type ResumoCompartilhado = {

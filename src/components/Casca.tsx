@@ -4,6 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEstado } from "@/lib/estado";
+import { Mascote } from "./Mascote";
+import { ProvedorRecompensa } from "./Jogo";
+import { ResumoDiario } from "./ResumoDiario";
 
 const abasApostador = [
   { href: "/app", rotulo: "Hoje", icone: "sol" },
@@ -15,6 +18,7 @@ const abasApostador = [
 
 const abasFamiliar = [
   { href: "/app", rotulo: "Hoje", icone: "sol" },
+  { href: "/app/trilha", rotulo: "Trilha", icone: "trilha" },
   { href: "/app/conversa", rotulo: "Conversar", icone: "balao" },
   { href: "/app/apoio", rotulo: "Apoio", icone: "mao" },
 ] as const;
@@ -51,6 +55,12 @@ function Icone({ nome }: { nome: string }) {
         </>
       )}
       {nome === "balao" && <path d="M4 5h16v11H9l-5 4V5Z" {...p} />}
+      {nome === "ajustes" && (
+        <>
+          <circle cx="12" cy="12" r="3" {...p} />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1" {...p} />
+        </>
+      )}
     </svg>
   );
 }
@@ -62,65 +72,114 @@ export function Casca({ children }: { children: ReactNode }) {
   const abas = familiar ? abasFamiliar : abasApostador;
   const naCrise = caminho.startsWith("/app/crise");
   const noInicio = caminho.startsWith("/app/comecar");
+  const ativa = (href: string) => (href === "/app" ? caminho === "/app" : caminho.startsWith(href));
+
+  const botaoVontade = (
+    <Link
+      href="/app/crise"
+      className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border-[3px] border-ardosia bg-ardosia px-6 font-titulo text-lg font-bold text-white shadow-[0_5px_0_#000] transition-transform active:translate-y-1 hover:bg-mare-escura"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 16a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.6 1.5A3.5 3.5 0 0 1 17 16H6Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      </svg>
+      Estou com vontade
+    </Link>
+  );
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col">
-      <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
-        Pular para o conteúdo
-      </a>
-      <header className="flex items-center justify-between px-5 pb-2 pt-5">
-        <Link href="/app" className="font-titulo text-xl font-extrabold text-mare-escura">
-          Recomeço
-        </Link>
-        <div className="flex items-center gap-2">
-          {modo === "demo" && <span className="rounded-full bg-sol-claro px-3 py-1 text-xs font-bold">Demonstração</span>}
-          <Link href="/app/ajustes" className="rounded-full px-3 py-1.5 text-sm font-bold text-ardosia-suave hover:bg-ceu">
-            Ajustes
-          </Link>
-        </div>
-      </header>
+    <ProvedorRecompensa>
+      <ResumoDiario />
+      <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
+        <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
+          Pular para o conteúdo
+        </a>
 
-      <main id="conteudo" className={`flex-1 px-5 ${noInicio ? "pb-10" : "pb-44"}`}>
-        {children}
-      </main>
-
-      {!noInicio && (
-        <div className="fixed inset-x-0 bottom-0 z-30">
-          <div className="mx-auto max-w-lg px-4">
-            {!naCrise && !familiar && (
-              <Link
-                href="/app/crise"
-                className="mb-3 flex min-h-14 items-center justify-center gap-2 rounded-full bg-ardosia px-6 font-titulo text-lg font-bold text-white shadow-[0_10px_24px_-8px_rgba(20,27,61,0.55)] hover:bg-mare-escura"
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 16a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.6 1.5A3.5 3.5 0 0 1 17 16H6Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-                </svg>
-                Estou com vontade
-              </Link>
-            )}
-          </div>
-          <nav aria-label="Seções" className="border-t border-nuvem bg-white/95 backdrop-blur">
-            <ul className="mx-auto flex max-w-lg justify-around">
-              {abas.map((a) => {
-                const ativa = a.href === "/app" ? caminho === "/app" : caminho.startsWith(a.href);
-                return (
-                  <li key={a.href} className="flex-1">
+        {/* Menu lateral no computador */}
+        {!noInicio && (
+          <aside className="sticky top-0 hidden h-dvh flex-col border-r-[3px] border-ardosia bg-sol px-4 py-6 lg:flex">
+            <Link href="/app" className="flex items-center gap-2">
+              <Mascote tamanho={52} animacao="parado" />
+              <span className="font-titulo text-2xl font-extrabold text-ardosia">Recomeço</span>
+            </Link>
+            <nav aria-label="Seções" className="mt-8 flex-1">
+              <ul className="space-y-2">
+                {abas.map((a) => (
+                  <li key={a.href}>
                     <Link
                       href={a.href}
-                      aria-current={ativa ? "page" : undefined}
-                      className={`flex flex-col items-center gap-0.5 py-2.5 text-xs font-bold ${ativa ? "text-mare-escura" : "text-ardosia-suave"}`}
+                      aria-current={ativa(a.href) ? "page" : undefined}
+                      className={`flex items-center gap-3 rounded-xl border-[3px] px-3 py-2.5 font-bold transition-transform ${
+                        ativa(a.href) ? "border-ardosia bg-white shadow-[0_4px_0_var(--ardosia)]" : "border-transparent hover:bg-white/50"
+                      }`}
                     >
                       <Icone nome={a.icone} />
                       {a.rotulo}
-                      <span className={`mt-0.5 h-1 w-6 rounded-full ${ativa ? "bg-sol" : "bg-transparent"}`} aria-hidden="true" />
                     </Link>
                   </li>
-                );
-              })}
-            </ul>
-          </nav>
+                ))}
+                <li>
+                  <Link
+                    href="/app/ajustes"
+                    aria-current={ativa("/app/ajustes") ? "page" : undefined}
+                    className={`flex items-center gap-3 rounded-xl border-[3px] px-3 py-2.5 font-bold ${
+                      ativa("/app/ajustes") ? "border-ardosia bg-white shadow-[0_4px_0_var(--ardosia)]" : "border-transparent hover:bg-white/50"
+                    }`}
+                  >
+                    <Icone nome="ajustes" />
+                    Ajustes
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+            {modo === "demo" && <p className="pixel mb-3 text-center text-xs">MODO DEMONSTRAÇÃO</p>}
+            {!familiar && !naCrise && botaoVontade}
+          </aside>
+        )}
+
+        <div className="flex min-h-dvh min-w-0 flex-col">
+          <header className="flex items-center justify-between border-b-[3px] border-ardosia bg-sol px-4 py-2.5 lg:hidden">
+            <Link href="/app" className="flex items-center gap-1.5">
+              <Mascote tamanho={34} animacao="parado" />
+              <span className="font-titulo text-xl font-extrabold text-ardosia">Recomeço</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              {modo === "demo" && <span className="pixel rounded-md border-2 border-ardosia bg-white px-2 py-0.5 text-[0.65rem]">DEMO</span>}
+              <Link href="/app/ajustes" className="rounded-lg px-2 py-1.5 text-sm font-bold hover:bg-white/50" aria-label="Ajustes">
+                <Icone nome="ajustes" />
+              </Link>
+            </div>
+          </header>
+
+          <main id="conteudo" className={`mx-auto w-full max-w-lg flex-1 px-4 sm:px-5 lg:max-w-4xl lg:px-10 lg:pb-16 lg:pt-6 ${noInicio ? "pb-10" : "pb-44"}`}>
+            {children}
+          </main>
         </div>
-      )}
-    </div>
+
+        {/* Barra inferior no celular */}
+        {!noInicio && (
+          <div className="fixed inset-x-0 bottom-0 z-30 lg:hidden">
+            {!naCrise && !familiar && <div className="mx-auto mb-3 max-w-lg px-4">{botaoVontade}</div>}
+            <nav aria-label="Seções" className="border-t-[3px] border-ardosia bg-white pb-[env(safe-area-inset-bottom)]">
+              <ul className="mx-auto flex max-w-lg justify-around">
+                {abas.map((a) => (
+                  <li key={a.href} className="flex-1">
+                    <Link
+                      href={a.href}
+                      aria-current={ativa(a.href) ? "page" : undefined}
+                      className={`flex flex-col items-center gap-0.5 py-2 text-xs font-bold ${ativa(a.href) ? "text-ardosia" : "text-ardosia-suave"}`}
+                    >
+                      <span className={`grid h-9 w-12 place-items-center rounded-xl border-2 ${ativa(a.href) ? "border-ardosia bg-sol" : "border-transparent"}`}>
+                        <Icone nome={a.icone} />
+                      </span>
+                      {a.rotulo}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        )}
+      </div>
+    </ProvedorRecompensa>
   );
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Barra, Carinhas, Ouvir } from "./ui";
+import { CartaoAcao, Hud, useRecompensa } from "./Jogo";
+import { acoesFamiliar, feitaHoje, pontosHabito } from "@/lib/missoes";
 import { cuidarDeSi, dinheiroFamilia, sinaisPrecoces } from "@/lib/conteudo";
 import { useEstado } from "@/lib/estado";
 import { hoje } from "@/lib/calculos";
@@ -12,6 +14,7 @@ const humores = ["", "muito mal", "mal", "mais ou menos", "bem", "muito bem"];
 
 export function PainelFamiliar() {
   const { estado, atualizar, vinculo, aceitarConvite } = useEstado();
+  const recompensar = useRecompensa();
   const [codigo, setCodigo] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   if (!estado) return null;
@@ -28,13 +31,69 @@ export function PainelFamiliar() {
     }));
 
   return (
-    <div className="space-y-8 pt-2">
-      <section>
-        <p className="text-ardosia-suave">Espaço de quem apoia</p>
-        <h1 className="text-3xl font-extrabold">Oi{estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}.</h1>
-      </section>
+    <div className="space-y-6 pt-4">
+      <Hud
+        humor={meuHoje !== undefined && meuHoje <= 2 ? "preocupado" : "feliz"}
+        fala={
+          meuHoje === undefined
+            ? `Oi${estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}! Como você está hoje? Quem apoia também precisa de cuidado.`
+            : "Valeu por estar aqui. Cada pequena ação de apoio conta, e conta XP também."
+        }
+      />
 
-      <section className="bloco">
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-white p-5 shadow-[0_5px_0_var(--ardosia)]">
+          <Carinhas
+            legenda="E você, como está hoje?"
+            valor={meuHoje}
+            aoMudar={(v) => {
+              const primeiro = meuHoje === undefined;
+              atualizar((s) => ({
+                ...s,
+                familia: { ...s.familia, meuCheckin: [...s.familia.meuCheckin.filter((c) => c.data !== hoje()), { data: hoje(), como: v }] },
+              }));
+              if (primeiro) recompensar({ pontos: pontosHabito.checkin + (estado.familia.meuCheckin.length === 0 ? 20 : 0), titulo: "Check-in feito", texto: "Seu humor também importa." });
+            }}
+          />
+          {meuHoje !== undefined && meuHoje <= 2 && (
+            <p className="mt-3 rounded-2xl bg-ceu p-3" role="status">
+              Cuidar de quem aposta pesa. O teleatendimento do SUS também atende familiares, e o CVV conversa com você pelo 188.
+            </p>
+          )}
+        </section>
+
+        <section aria-labelledby="titulo-acoes">
+          <h2 id="titulo-acoes" className="text-2xl font-extrabold">
+            Ações de apoio de hoje
+          </h2>
+          <p className="mt-1 text-sm text-ardosia-suave">Toque no que você fez. Cada uma vale +{pontosHabito.acaoFamiliar} XP por dia.</p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {acoesFamiliar.map((a) => {
+              const feito = feitaHoje(estado, a.tipo);
+              return (
+                <CartaoAcao
+                  key={a.tipo}
+                  titulo={a.titulo}
+                  texto={a.texto}
+                  cor={a.cor}
+                  feito={feito}
+                  pontos={pontosHabito.acaoFamiliar}
+                  aoTocar={() => {
+                    if (feito) {
+                      atualizar((e) => ({ ...e, familia: { ...e.familia, acoes: e.familia.acoes.filter((x) => !(x.tipo === a.tipo && x.data === hoje())) } }));
+                      return;
+                    }
+                    atualizar((e) => ({ ...e, familia: { ...e.familia, acoes: [...e.familia.acoes, { data: hoje(), tipo: a.tipo }] } }));
+                    recompensar({ pontos: pontosHabito.acaoFamiliar, titulo: a.titulo });
+                  }}
+                />
+              );
+            })}
+          </div>
+        </section>
+      </div>
+
+      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-white p-5">
         {temResumo && resumo ? (
           <>
             <h2 className="text-xl font-bold">Como {resumo.nome} está indo</h2>
@@ -68,7 +127,7 @@ export function PainelFamiliar() {
             <p className="mt-4 text-sm text-ardosia-suave">
               Os números servem para você saber como apoiar, não para cobrar. Um dia ruim não é motivo para briga.
             </p>
-            <Link href="/app/conversa" className="botao mt-4 w-full">
+            <Link href="/app/conversa" className="botao-jogo botao-jogo-azul mt-4 w-full">
               Mandar uma mensagem de apoio
             </Link>
           </>
@@ -101,31 +160,16 @@ export function PainelFamiliar() {
         )}
       </section>
 
-      <section className="rounded-[1.75rem] bg-coral p-5 text-white">
+      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-coral p-5 text-white shadow-[0_5px_0_var(--ardosia)]">
         <h2 className="text-xl font-bold">Você é padrinho ou madrinha</h2>
         <p className="mt-1">
           Algumas missões da trilha valem o dobro quando são feitas com você: limpar o celular, puxar o Registrato junto, um programa
           sem aposta e o primeiro passo no SUS ou nos Jogadores Anônimos. Combine uma delas nesta semana.
         </p>
+        <Link href="/app/trilha" className="botao-jogo mt-4 w-full">
+          Ver minha trilha de apoio
+        </Link>
         <p className="mt-2 text-sm text-white/90">Seu papel é apoiar e lembrar, não fiscalizar.</p>
-      </section>
-
-      <section className="bloco">
-        <Carinhas
-          legenda="E você, como está hoje?"
-          valor={meuHoje}
-          aoMudar={(v) =>
-            atualizar((s) => ({
-              ...s,
-              familia: { ...s.familia, meuCheckin: [...s.familia.meuCheckin.filter((c) => c.data !== hoje()), { data: hoje(), como: v }] },
-            }))
-          }
-        />
-        {meuHoje !== undefined && meuHoje <= 2 && (
-          <p className="mt-3 rounded-2xl bg-ceu p-3" role="status">
-            Cuidar de quem aposta pesa. O teleatendimento do SUS também atende familiares, e o CVV conversa com você pelo 188.
-          </p>
-        )}
       </section>
 
       <section aria-labelledby="titulo-sinais">
@@ -133,16 +177,11 @@ export function PainelFamiliar() {
           Sinais para prestar atenção
         </h2>
         <p className="mt-1 text-ardosia-suave">
-          A aposta online é fácil de esconder. A maioria das famílias descobre tarde. Marque o que você tem visto.
+          A aposta online é fácil de esconder. A maioria das famílias descobre tarde. Toque no que você tem visto.
         </p>
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {sinaisPrecoces.map((s) => (
-            <button key={s} type="button" role="checkbox" aria-checked={marcados.includes(s)} className="opcao flex items-center gap-3" onClick={() => alternarSinal(s)}>
-              <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 ${marcados.includes(s) ? "border-mare bg-mare text-white" : "border-nuvem"}`} aria-hidden="true">
-                {marcados.includes(s) ? "✓" : ""}
-              </span>
-              {s}
-            </button>
+            <CartaoAcao key={s} titulo={s} cor="var(--sol)" feito={marcados.includes(s)} rotuloFeito="Visto" aoTocar={() => alternarSinal(s)} />
           ))}
         </div>
         {marcados.length >= 3 && (
@@ -152,7 +191,7 @@ export function PainelFamiliar() {
         )}
       </section>
 
-      <section className="bloco">
+      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-white p-5">
         <div className="flex items-start justify-between gap-2">
           <h2 className="text-xl font-bold">Dinheiro: como ajudar sem alimentar a aposta</h2>
           <Ouvir texto={dinheiroFamilia.join(". ")} />
@@ -167,7 +206,7 @@ export function PainelFamiliar() {
         </ul>
       </section>
 
-      <section className="bloco">
+      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-white p-5">
         <div className="flex items-start justify-between gap-2">
           <h2 className="text-xl font-bold">Cuidar de você também</h2>
           <Ouvir texto={cuidarDeSi.join(". ")} />

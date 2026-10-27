@@ -1,10 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Titulo } from "@/components/ui";
 import { useEstado } from "@/lib/estado";
 import type { Estado } from "@/lib/tipos";
+import { ativarLembretes, desativarLembretes, ehIOSsemInstalar, lembretesSuportados, mostrarLembrete, permissaoAtual } from "@/lib/lembretes";
+import { textoLembrete } from "@/lib/textoLembrete";
 
 export default function Ajustes() {
   const { estado, atualizar, sair, apagarTudo, modo, email } = useEstado();
@@ -48,6 +50,8 @@ export default function Ajustes() {
           voz do celular.
         </p>
       </section>
+
+      <Lembretes />
 
       <section className="bloco space-y-3">
         <h2 className="text-xl font-bold">Sua conta</h2>
@@ -135,5 +139,78 @@ function Interruptor({ ativo, rotulo, aoMudar, descricao }: { ativo: boolean; ro
         <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${ativo ? "left-6" : "left-1"}`} />
       </span>
     </button>
+  );
+}
+
+function Lembretes() {
+  const { estado, usuarioId } = useEstado();
+  const [status, setStatus] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStatus(permissaoAtual());
+  }, []);
+  if (!estado || status === null) return null;
+
+  const testar = async () => {
+    const t = textoLembrete(estado);
+    const ok = await mostrarLembrete(t.titulo, t.corpo, t.url);
+    setAviso(ok ? "Lembrete enviado. Confira a notificação no aparelho." : "Não consegui mostrar a notificação.");
+  };
+
+  return (
+    <section className="bloco space-y-3" aria-labelledby="titulo-lembretes">
+      <h2 id="titulo-lembretes" className="text-xl font-bold">
+        Lembretes do Caramelo
+      </h2>
+      <p>
+        Um aviso por dia, só quando o check-in ainda não foi feito. Cada dia mostra um avanço diferente: meta da semana, XP, dinheiro
+        longe da aposta ou a próxima missão. Nada de cobrança.
+      </p>
+      {!lembretesSuportados() ? (
+        <p className="text-sm text-ardosia-suave">Este navegador não aceita notificações.</p>
+      ) : status === "granted" ? (
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="botao-jogo botao-jogo-azul" onClick={testar}>
+            Mandar um lembrete de teste
+          </button>
+          <button
+            type="button"
+            className="botao-linha"
+            onClick={async () => {
+              await desativarLembretes(usuarioId);
+              setAviso("Lembretes desligados. Para bloquear de vez, use as configurações do navegador.");
+            }}
+          >
+            Desligar
+          </button>
+        </div>
+      ) : status === "denied" ? (
+        <p className="text-sm font-bold text-telha">As notificações estão bloqueadas. Libere nas configurações do navegador para este site.</p>
+      ) : (
+        <button
+          type="button"
+          className="botao-jogo botao-jogo-azul w-full"
+          onClick={async () => {
+            const r = await ativarLembretes(estado.perfil.horarioCheckin, usuarioId);
+            setStatus(r === "negado" ? "denied" : "granted");
+            if (r !== "negado" && r !== "indisponivel") await testar();
+          }}
+        >
+          Ligar lembretes
+        </button>
+      )}
+      {ehIOSsemInstalar() && (
+        <p className="rounded-xl bg-ceu p-3 text-sm">
+          No iPhone, os lembretes só funcionam com o app na tela de início: toque em Compartilhar e depois em Adicionar à Tela de
+          Início.
+        </p>
+      )}
+      {aviso && (
+        <p role="status" className="text-sm font-bold text-mare-escura">
+          {aviso}
+        </p>
+      )}
+    </section>
   );
 }
