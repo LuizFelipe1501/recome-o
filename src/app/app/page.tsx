@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { Atividade } from "@/components/Atividade";
 import { MiniGrafico } from "@/components/ui";
+import { BarraVida, Chefao, corChefao } from "@/components/Chefao";
 import { Hud, useRecompensa } from "@/components/Jogo";
 import { Fala, Mascote, type Humor } from "@/components/Mascote";
 import { PainelFamiliar } from "@/components/PainelFamiliar";
 import { atividades, atividadesLivres } from "@/lib/conteudo";
 import { pontosHabito, proximaMissao } from "@/lib/missoes";
 import { useEstado } from "@/lib/estado";
-import { diasEntre, diasSemApostarNoMes, hoje, reais } from "@/lib/calculos";
+import { diasEntre, diasSemApostarNoMes, hoje, ordenarDividas, progressoDividas, reais, restante } from "@/lib/calculos";
 import type { Checkin } from "@/lib/tipos";
 
 export default function Hoje() {
@@ -91,6 +92,8 @@ function HojeApostador() {
           )}
         </section>
       </div>
+
+      <CartaoDesenrola />
 
       <section aria-labelledby="titulo-atividades">
         <h2 id="titulo-atividades" className="text-2xl font-extrabold">
@@ -436,5 +439,74 @@ function IconePixel({ nome }: { nome: string }) {
         linha.split("").map((c, x) => (c === "X" ? <rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill="currentColor" /> : null)),
       )}
     </svg>
+  );
+}
+
+// Desenrola direto na tela inicial: o chefão da vez e a reserva
+function CartaoDesenrola() {
+  const { estado } = useEstado();
+  if (!estado) return null;
+  const ativas = ordenarDividas(estado.dividas, estado.estrategia);
+  const alvo = ativas[0];
+  const total = estado.dividas.reduce((s, d) => s + restante(d), 0);
+  const derrotados = estado.dividas.filter((d) => d.valorTotal > 0 && restante(d) === 0).length;
+  const r = estado.reserva;
+  const pctReserva = r.meta ? Math.min(100, Math.round((r.guardado / r.meta) * 100)) : 0;
+
+  return (
+    <section aria-labelledby="titulo-desenrola-hoje" className="overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-white shadow-[0_5px_0_var(--ardosia)]">
+      <div className="flex items-center justify-between gap-3 bg-ardosia px-5 py-3 text-white">
+        <div>
+          <p className="pixel text-[0.65rem] text-sol">DESENROLA</p>
+          <h2 id="titulo-desenrola-hoje" className="text-xl font-extrabold">
+            Desenrolando sua vida
+          </h2>
+        </div>
+        {estado.dividas.length > 0 && (
+          <p className="text-right text-sm font-bold">
+            {derrotados}/{estado.dividas.length} chefões
+            <span className="block text-white/80">falta {reais(total)}</span>
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-4 p-5 sm:grid-cols-2">
+        {alvo ? (
+          <div className="flex items-center gap-3">
+            <Chefao categoria={alvo.categoria} tamanho={64} className="mascote-idle shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="pixel text-[0.6rem] text-ardosia-suave">ALVO ATUAL</p>
+              <p className="truncate font-extrabold">{alvo.credor}</p>
+              <BarraVida restante={restante(alvo)} total={alvo.valorTotal} cor={corChefao[alvo.categoria]} />
+              <p className="mt-1 text-xs">
+                Vida {reais(restante(alvo))} · {progressoDividas(estado.dividas)}% de tudo já pago
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p className="font-bold">{estado.dividas.length ? "Todos os chefões derrotados!" : "Ainda não tem dívida no papel."}</p>
+            <p className="text-sm text-ardosia-suave">
+              {estado.dividas.length ? "Agora o foco é a reserva." : "Anotar tira o peso da cabeça e vale +40 XP na trilha."}
+            </p>
+          </div>
+        )}
+        <div className="rounded-xl bg-menta-claro p-3">
+          <p className="pixel text-[0.6rem] text-ardosia-suave">CASINHA DO CARAMELO</p>
+          <p className="font-extrabold">
+            {reais(r.guardado)} <span className="text-sm font-bold">de {reais(r.meta)}</span>
+          </p>
+          <div className="mt-1 h-3 overflow-hidden rounded border-2 border-ardosia bg-white">
+            <div className="h-full bg-menta transition-[width] duration-700" style={{ width: `${pctReserva}%` }} />
+          </div>
+          <p className="mt-1 truncate text-xs">{r.objetivo}</p>
+        </div>
+      </div>
+      <div className="px-5 pb-5">
+        <Link href="/app/dividas" className="botao-jogo w-full">
+          {alvo ? "Registrar um pagamento" : estado.dividas.length ? "Guardar na reserva" : "Colocar dívidas no papel"}
+        </Link>
+      </div>
+    </section>
   );
 }

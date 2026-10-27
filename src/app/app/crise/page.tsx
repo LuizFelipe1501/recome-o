@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { Atividade } from "@/components/Atividade";
 import { Ceu } from "@/components/Ceu";
+import { Mascote } from "@/components/Mascote";
+import { pontosHabito } from "@/lib/missoes";
 import { atividades, gatilhos } from "@/lib/conteudo";
 import { useEstado } from "@/lib/estado";
 import type { Crise } from "@/lib/tipos";
@@ -106,7 +108,14 @@ export default function PaginaCrise() {
       )}
 
       {etapa === "fim" && (
-        <section className="bloco space-y-4">
+        <section className="space-y-4 rounded-[1.75rem] border-[3px] border-ardosia bg-white p-5 shadow-[0_5px_0_var(--ardosia)]">
+          <div className="flex items-end gap-3 rounded-2xl bg-sol p-3">
+            <Mascote tamanho={88} humor={resultado === "apostei" ? "preocupado" : "feliz"} animacao="idle" />
+            <p className="pb-2 font-bold">
+              {resultado === "apostei" ? "Tô aqui do seu lado. Amanhã a gente segue, seu XP continua inteiro." : "Eu sabia que você conseguia. Fico orgulhoso!"}
+              {resultado !== "apostei" && <span className="pixel mt-1 block text-xs text-mare-escura">+{pontosHabito.vontadeAtravessada} XP</span>}
+            </p>
+          </div>
           {resultado === "passou" && (
             <>
               <h1 className="text-3xl font-extrabold">Você atravessou.</h1>
@@ -138,7 +147,7 @@ export default function PaginaCrise() {
               </Link>
             </>
           )}
-          <Link href="/app" className="botao w-full">
+          <Link href="/app" className="botao-jogo botao-jogo-azul w-full">
             Voltar para o início
           </Link>
         </section>

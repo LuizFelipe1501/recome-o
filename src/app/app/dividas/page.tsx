@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Celebracao, useCelebracao } from "@/components/Pontos";
-import { Barra, Base, Ouvir } from "@/components/ui";
+import { BarraVida, Chefao, corChefao, nomeChefao } from "@/components/Chefao";
+import { useRecompensa } from "@/components/Jogo";
+import { Mascote } from "@/components/Mascote";
+import { Base, Ouvir } from "@/components/ui";
 import { useEstado } from "@/lib/estado";
 import { comprometimentoRenda, hoje, novoId, ordenarDividas, progressoDividas, reais, restante } from "@/lib/calculos";
 import { pontosHabito } from "@/lib/missoes";
@@ -30,7 +32,7 @@ const numero = (v: string) => Number(v.replace(/[^\d,]/g, "").replace(",", "."))
 export default function Dividas() {
   const { estado, atualizar } = useEstado();
   const [mostrarForm, setMostrarForm] = useState(false);
-  const { festa, celebrar } = useCelebracao();
+  const recompensar = useRecompensa();
   if (!estado) return null;
 
   const ativas = ordenarDividas(estado.dividas, estado.estrategia);
@@ -46,42 +48,49 @@ export default function Dividas() {
       dividas: e.dividas.map((x) => (x.id === d.id ? { ...x, pago: Math.min(x.valorTotal, x.pago + valor) } : x)),
       pagamentos: [...e.pagamentos, { id: novoId(), dividaId: d.id, valor, data: hoje() }],
     }));
-    celebrar(quita ? `${d.credor} quitada! +${pontosHabito.pagamento}` : `+${pontosHabito.pagamento} pontos`);
+    recompensar(
+      quita
+        ? { pontos: pontosHabito.pagamento, titulo: `${d.credor}: chefão derrotado!`, texto: "Dívida quitada. O dinheiro dessa parcela agora vai para o próximo." }
+        : { pontos: pontosHabito.pagamento, titulo: "Golpe certeiro", texto: `${reais(valor)} a menos em ${d.credor}. Faltam ${reais(Math.max(0, restante(d) - valor))}.` },
+    );
   };
 
   return (
-    <div className="relative space-y-8 pt-2">
-      <Celebracao festa={festa} />
-
-      <section className="relative overflow-hidden rounded-[1.75rem] bg-coral p-6 text-white">
-        <svg className="pointer-events-none absolute -right-8 -top-8 h-40 w-40" viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="42" fill="var(--sol)" />
-        </svg>
-        <svg className="pointer-events-none absolute -bottom-16 -left-10 h-44 w-44" viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="42" fill="var(--mare)" opacity="0.9" />
-        </svg>
-        <div className="relative">
-          <p className="font-bold text-white/90">Desenrola</p>
-          <h1 className="mt-1 text-[2rem] font-extrabold leading-[1.05]">Desenrolando sua vida com você</h1>
-          <p className="mt-3 max-w-sm">
-            Cada pagamento é uma missão. Colocar no papel tira o peso da cabeça, e aqui ninguém julga.
-          </p>
+    <div className="space-y-6 pt-4">
+      <section className="overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-ardosia text-white shadow-[0_6px_0_#000]">
+        <div className="grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+          <div>
+            <p className="pixel text-xs text-sol">DESENROLA</p>
+            <h1 className="mt-1 text-[1.9rem] font-extrabold leading-[1.05] sm:text-4xl">Desenrolando sua vida com você</h1>
+            <p className="mt-2 max-w-md text-white/90">Cada dívida é um chefão. Cada pagamento tira vida dele. Aqui ninguém julga.</p>
+          </div>
           {estado.dividas.length > 0 && (
-            <div className="mt-5 flex items-center gap-4">
+            <div className="flex items-center gap-4 rounded-2xl border-[3px] border-white/30 bg-white/10 p-3">
               <Anel pct={pct} />
               <div>
-                <p className="text-sm font-bold text-white/90">Ainda falta</p>
-                <p className="font-titulo text-3xl font-extrabold">{reais(totalDevido)}</p>
+                <p className="pixel text-[0.65rem] text-white/80">AINDA FALTA</p>
+                <p className="font-titulo text-2xl font-extrabold">{reais(totalDevido)}</p>
                 <p className="text-sm font-bold">
-                  {estado.pagamentos.length} {estado.pagamentos.length === 1 ? "missão cumprida" : "missões cumpridas"}
+                  {quitadas.length} de {estado.dividas.length} chefões derrotados
                 </p>
               </div>
             </div>
           )}
         </div>
+        <div className="flex items-end justify-between gap-2 border-t-[3px] border-ardosia bg-sol px-5 pt-2 text-ardosia">
+          <Mascote tamanho={56} humor="feliz" />
+          <p className="flex-1 pb-3 text-sm font-bold">
+            {ativas.length ? `Próximo alvo: ${ativas[0].credor}. Bora juntos!` : "Coloque as dívidas no papel e a gente monta o plano de ataque."}
+          </p>
+          <div className="flex gap-1 pb-2">
+            {ativas.slice(0, 3).map((d) => (
+              <Chefao key={d.id} categoria={d.categoria} tamanho={40} />
+            ))}
+          </div>
+        </div>
       </section>
 
-      <section className="rounded-2xl bg-white p-5">
+      <section className="rounded-2xl border-[3px] border-ardosia bg-white p-5">
         <h2 className="text-lg font-bold">Uma linha do Desenrola só para quem saiu das bets</h2>
         <p className="mt-1">
           Esta é a nossa proposta: renegociação com desconto para dívidas ligadas a apostas, acompanhada de perto. Quem entra
@@ -101,14 +110,14 @@ export default function Dividas() {
       <section aria-labelledby="titulo-ordem">
         <div className="flex items-end justify-between gap-3">
           <h2 id="titulo-ordem" className="text-2xl font-extrabold">
-            Missões de pagamento
+            Chefões para derrotar
           </h2>
-          <button type="button" className="botao px-4 py-2 text-sm" onClick={() => setMostrarForm(!mostrarForm)} aria-expanded={mostrarForm}>
+          <button type="button" className="botao-jogo botao-jogo-azul shrink-0 px-4 py-2 text-sm" onClick={() => setMostrarForm(!mostrarForm)} aria-expanded={mostrarForm}>
             {mostrarForm ? "Fechar" : "Adicionar dívida"}
           </button>
         </div>
         <p className="mt-1 text-ardosia-suave">
-          Primeiro o que ameaça você ou a casa. Depois, a estratégia que você escolher. Cada parcela paga acende um quadradinho.
+          Primeiro o que ameaça você ou a casa. Depois, a estratégia que você escolher. Cada pagamento registrado tira vida do chefão.
         </p>
 
         {mostrarForm && <NovaDivida aoSalvar={() => setMostrarForm(false)} />}
@@ -134,22 +143,21 @@ export default function Dividas() {
           </div>
         )}
 
-        <ol className="mt-4 space-y-3">
+        <ol className="mt-4 grid gap-4 lg:grid-cols-2">
           {ativas.map((d, i) => (
             <CartaoDivida key={d.id} d={d} posicao={i + 1} pagar={pagar} />
           ))}
         </ol>
 
         {quitadas.length > 0 && (
-          <div className="mt-6">
-            <h3 className="font-bold">Missões vencidas</h3>
-            <ul className="mt-2 space-y-2">
+          <div className="mt-6 rounded-2xl border-[3px] border-ardosia bg-sol p-4">
+            <h3 className="pixel text-sm">ESTANTE DE TROFÉUS</h3>
+            <ul className="mt-3 flex flex-wrap gap-3">
               {quitadas.map((d) => (
-                <li key={d.id} className="entrar-cartao flex items-center justify-between rounded-2xl bg-lima px-4 py-3 text-ardosia">
-                  <span>
-                    <strong>{d.credor}</strong> quitada
-                  </span>
-                  <span aria-hidden="true" className="font-titulo text-xl font-extrabold">✓</span>
+                <li key={d.id} className="entrar-cartao flex flex-col items-center rounded-xl border-[3px] border-ardosia bg-white px-3 py-2 text-center">
+                  <Chefao categoria={d.categoria} tamanho={44} derrotado />
+                  <span className="mt-1 max-w-[7rem] text-sm font-bold leading-tight">{d.credor}</span>
+                  <span className="pixel text-[0.6rem] text-menta">QUITADA</span>
                 </li>
               ))}
             </ul>
@@ -157,7 +165,7 @@ export default function Dividas() {
         )}
       </section>
 
-      <DesafioPoupanca aoGuardar={(v) => celebrar(`+${pontosHabito.deposito} pontos, ${reais(v)} guardados`)} />
+      <DesafioPoupanca aoGuardar={(v) => recompensar({ pontos: pontosHabito.deposito, titulo: "Tijolo na casinha", texto: `${reais(v)} guardados. A casinha do Caramelo cresceu.` })} />
       <DinheiroExtra />
       <Caminhos />
     </div>
@@ -277,77 +285,65 @@ function NovaDivida({ aoSalvar }: { aoSalvar: () => void }) {
 function CartaoDivida({ d, posicao, pagar }: { d: Divida; posicao: number; pagar: (d: Divida, valor: number) => void }) {
   const { atualizar } = useEstado();
   const [pagamento, setPagamento] = useState(d.parcela ? String(d.parcela) : "");
-  const [pulso, setPulso] = useState(0);
-  const pct = d.valorTotal ? (d.pago / d.valorTotal) * 100 : 0;
+  const [golpe, setGolpe] = useState<{ id: number; valor: number } | null>(null);
   const primeira = posicao === 1;
-  const totalParcelas = d.parcela ? Math.min(24, Math.ceil(d.valorTotal / d.parcela)) : 0;
-  const parcelasPagas = d.parcela ? Math.min(totalParcelas, Math.floor(d.pago / d.parcela)) : 0;
-  const cor = d.categoria === "risco" ? "var(--telha)" : d.categoria === "sobrevivencia" ? "var(--menta)" : d.categoria === "cara" ? "var(--coral)" : "var(--mare)";
+  const cor = corChefao[d.categoria];
+  const falta = restante(d);
+  const parcelas = d.parcela ? Math.ceil(falta / d.parcela) : null;
 
   return (
-    <li key={pulso} className={`entrar-cartao overflow-hidden rounded-2xl bg-white ${pulso ? "pulsar" : ""} ${primeira ? "ring-2 ring-mare" : ""}`} style={{ animationDelay: pulso ? "0ms" : `${posicao * 60}ms` }}>
-      <div className="h-2" style={{ background: cor }} aria-hidden="true" />
-      <div className="flex items-start gap-3 p-4">
-        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-titulo font-extrabold ${primeira ? "bg-mare text-white" : "bg-ceu"}`} aria-hidden="true">
-          {posicao}
-        </span>
-        <div className="flex-1">
-          <p className="text-sm font-bold" style={{ color: d.categoria === "outra" ? "var(--mare-escura)" : undefined }}>
-            {nomeCategoria[d.categoria]}
-            {d.juroMes ? `, ${d.juroMes}% ao mês` : ""}
-          </p>
-          <h3 className="text-lg font-bold">{d.credor}</h3>
-          <p>
-            Faltam <strong>{reais(restante(d))}</strong> de {reais(d.valorTotal)}
-          </p>
-          {totalParcelas > 0 ? (
-            <div className="mt-3">
-              <div className="flex flex-wrap gap-1.5" role="img" aria-label={`${parcelasPagas} de ${totalParcelas} parcelas pagas`}>
-                {Array.from({ length: totalParcelas }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="h-5 w-5 rounded-md transition-colors duration-500"
-                    style={{ background: i < parcelasPagas ? cor : "var(--ceu)", transitionDelay: `${i * 30}ms` }}
-                  />
-                ))}
-              </div>
-              <p className="mt-1 text-sm text-ardosia-suave">
-                {parcelasPagas} de {totalParcelas} missões de {reais(d.parcela)}
-              </p>
-            </div>
-          ) : (
-            <div className="mt-2">
-              <Barra valor={pct} rotulo={`Quanto já foi pago de ${d.credor}`} cor={cor} />
-            </div>
+    <li className={`entrar-cartao overflow-hidden rounded-[1.5rem] border-[3px] border-ardosia bg-white shadow-[0_5px_0_var(--ardosia)] ${primeira ? "ring-4 ring-sol" : ""}`} style={{ animationDelay: `${posicao * 60}ms` }}>
+      <div className="flex items-center justify-between px-4 py-2 text-white" style={{ background: cor }}>
+        <p className="pixel text-[0.65rem]">
+          {primeira ? "ALVO ATUAL · " : `#${posicao} · `}
+          {nomeChefao[d.categoria].toUpperCase()}
+        </p>
+        <p className="pixel text-[0.65rem]">{nomeCategoria[d.categoria].toUpperCase()}{d.juroMes ? ` · ${d.juroMes}%/MÊS` : ""}</p>
+      </div>
+      <div className="flex items-center gap-4 p-4">
+        <div className="relative shrink-0">
+          <Chefao key={golpe?.id} categoria={d.categoria} tamanho={76} className={golpe ? "dano" : "mascote-idle"} />
+          {golpe && (
+            <span key={golpe.id} className="pontos-subindo pixel absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded border-2 border-ardosia bg-white px-1.5 text-xs text-telha">
+              -{reais(golpe.valor)}
+            </span>
           )}
-          {primeira && <p className="mt-2 text-sm font-bold text-mare-escura">É a missão de agora. Concentre aqui o que sobrar no mês.</p>}
-          <form
-            className="mt-3 flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const v = numero(pagamento);
-              if (!v) return;
-              pagar(d, v);
-              setPulso(Date.now());
-            }}
-          >
-            <label htmlFor={`pg-${d.id}`} className="sr-only">
-              Valor pago para {d.credor}
-            </label>
-            <input id={`pg-${d.id}`} inputMode="decimal" className="campo" placeholder="Paguei R$" value={pagamento} onChange={(e) => setPagamento(e.target.value)} />
-            <button type="submit" className="botao shrink-0 px-4">
-              Registrar
-            </button>
-          </form>
-          <button
-            type="button"
-            className="mt-2 text-sm text-ardosia-suave underline"
-            onClick={() => atualizar((e) => ({ ...e, dividas: e.dividas.filter((x) => x.id !== d.id) }))}
-          >
-            Remover da lista
-          </button>
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-lg font-extrabold">{d.credor}</h3>
+          <BarraVida restante={falta} total={d.valorTotal} cor={cor} />
+          <p className="pixel mt-1 text-[0.65rem] text-ardosia-suave">
+            VIDA {reais(falta)} / {reais(d.valorTotal)}
+          </p>
+          {parcelas !== null && <p className="text-sm">Faltam {parcelas} {parcelas === 1 ? "golpe" : "golpes"} de {reais(d.parcela)}</p>}
         </div>
       </div>
+      {primeira && <p className="mx-4 -mt-1 mb-2 rounded-lg bg-sol-claro px-3 py-1.5 text-sm font-bold">É o alvo de agora. Concentre aqui o que sobrar no mês.</p>}
+      <form
+        className="flex gap-2 border-t-[3px] border-ardosia bg-ceu-fundo p-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const v = numero(pagamento);
+          if (!v) return;
+          pagar(d, v);
+          setGolpe({ id: Date.now(), valor: v });
+        }}
+      >
+        <label htmlFor={`pg-${d.id}`} className="sr-only">
+          Valor pago para {d.credor}
+        </label>
+        <input id={`pg-${d.id}`} inputMode="decimal" className="campo" placeholder="Paguei R$" value={pagamento} onChange={(e) => setPagamento(e.target.value)} />
+        <button type="submit" className="botao-jogo shrink-0 px-4">
+          Registrar
+        </button>
+      </form>
+      <button
+        type="button"
+        className="mx-4 mb-3 mt-1 text-sm text-ardosia-suave underline"
+        onClick={() => atualizar((e) => ({ ...e, dividas: e.dividas.filter((x) => x.id !== d.id) }))}
+      >
+        Remover da lista
+      </button>
     </li>
   );
 }
@@ -441,15 +437,15 @@ function DesafioPoupanca({ aoGuardar }: { aoGuardar: (v: number) => void }) {
   const set = (parcial: Partial<typeof r>) => atualizar((e) => ({ ...e, reserva: { ...e.reserva, ...parcial } }));
 
   return (
-    <section className="overflow-hidden rounded-[1.75rem] bg-menta-claro p-5" aria-labelledby="titulo-desafio">
-      <p className="font-bold text-ardosia-suave">Desafio de poupança</p>
+    <section className="overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-menta-claro p-5 shadow-[0_5px_0_var(--ardosia)]" aria-labelledby="titulo-desafio">
+      <p className="pixel text-xs text-ardosia-suave">DESAFIO DE POUPANÇA · A CASINHA DO CARAMELO</p>
       <h2 id="titulo-desafio" className="text-2xl font-extrabold">
         {r.objetivo || "Meu objetivo"}
       </h2>
 
-      <div className="mt-4 flex items-end gap-5">
-        <Pote pct={pct} />
-        <div className="flex-1">
+      <div className="mt-4 flex flex-wrap items-end gap-4">
+        <Casinha pct={pct} />
+        <div className="min-w-[10rem] flex-1">
           <p className="font-titulo text-4xl font-extrabold">{reais(r.guardado)}</p>
           <p className="font-bold">de {reais(r.meta)}</p>
           {pct >= 100 ? (
@@ -461,7 +457,7 @@ function DesafioPoupanca({ aoGuardar }: { aoGuardar: (v: number) => void }) {
               </p>
             )
           )}
-          <ul className="mt-3 flex gap-1.5" aria-label="Marcos do desafio">
+          <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Marcos do desafio">
             {marcos.map((m) => (
               <li
                 key={m}
@@ -492,7 +488,7 @@ function DesafioPoupanca({ aoGuardar }: { aoGuardar: (v: number) => void }) {
           Valor guardado
         </label>
         <input id="guardar" inputMode="decimal" className="campo" placeholder="Guardei R$" value={valor} onChange={(e) => setValor(e.target.value)} />
-        <button type="submit" className="botao shrink-0 bg-ardosia px-4 hover:bg-ardosia">
+        <button type="submit" className="botao-jogo botao-jogo-azul shrink-0 px-4">
           Guardar
         </button>
       </form>
@@ -537,31 +533,65 @@ function DesafioPoupanca({ aoGuardar }: { aoGuardar: (v: number) => void }) {
   );
 }
 
-// Pote que enche conforme o objetivo avança, com uma onda suave na superfície.
-function Pote({ pct }: { pct: number }) {
-  const altura = 110;
-  const nivel = altura - (pct / 100) * (altura - 14);
+// A casinha do Caramelo é construída em etapas conforme a reserva cresce:
+// 25% fundação e paredes, 50% telhado, 75% porta e janela, 100% o Caramelo se muda.
+function Casinha({ pct }: { pct: number }) {
+  const etapa = pct >= 100 ? 4 : pct >= 75 ? 3 : pct >= 50 ? 2 : pct >= 25 ? 1 : 0;
+  const r = (x: number, y: number, w: number, h: number, fill: string, k?: string) => <rect key={k ?? `${x}-${y}-${fill}`} x={x} y={y} width={w} height={h} fill={fill} />;
+  const nomes = ["Terreno pronto", "Paredes de pé", "Telhado no lugar", "Porta e janela", "O Caramelo se mudou!"];
   return (
-    <svg width="96" height="130" viewBox="0 0 96 130" role="img" aria-label={`Pote ${Math.round(pct)}% cheio`} className="shrink-0">
-      <defs>
-        <clipPath id="dentro-pote">
-          <path d="M14 26h68v86a12 12 0 0 1-12 12H26a12 12 0 0 1-12-12V26Z" />
-        </clipPath>
-      </defs>
-      <rect x="22" y="8" width="52" height="14" rx="5" fill="var(--ardosia)" />
-      <path d="M14 26h68v86a12 12 0 0 1-12 12H26a12 12 0 0 1-12-12V26Z" fill="white" />
-      <g clipPath="url(#dentro-pote)">
-        <g style={{ transform: `translateY(${nivel}px)`, transition: "transform 1.2s cubic-bezier(.2,.8,.2,1)" }}>
-          <g className="onda">
-            <path d="M0 6 Q12 0 24 6 T48 6 T72 6 T96 6 T120 6 T144 6 T168 6 T192 6 V140 H0 Z" fill="var(--menta)" />
+    <figure className="shrink-0 text-center">
+      <svg width="116" height="106" viewBox="0 0 22 20" className="pixelado" role="img" aria-label={`Casinha: ${nomes[etapa]}, ${Math.round(pct)}% da meta`}>
+        {r(0, 0, 22, 17, "#e7ebff")}
+        {r(16, 2, 3, 3, "#fcfc30")}
+        {r(0, 17, 22, 3, "#17b07a")}
+        {r(2, 16, 18, 1, "#46557e")}
+        {etapa >= 1 && (
+          <g className="surgir">
+            {r(4, 9, 14, 7, "#d9893b")}
+            {r(4, 9, 14, 1, "#3b2414")}
+            {r(4, 9, 1, 7, "#3b2414")}
+            {r(17, 9, 1, 7, "#3b2414")}
+            {r(5, 12, 12, 1, "#c27630")}
           </g>
-        </g>
-        {[0.25, 0.5, 0.75].map((m) => (
-          <line key={m} x1="14" x2="26" y1={altura - m * (altura - 14)} y2={altura - m * (altura - 14)} stroke="var(--ardosia)" strokeOpacity="0.25" strokeWidth="2" />
-        ))}
-      </g>
-      <path d="M14 26h68v86a12 12 0 0 1-12 12H26a12 12 0 0 1-12-12V26Z" fill="none" stroke="var(--ardosia)" strokeWidth="4" />
-    </svg>
+        )}
+        {etapa < 1 && (
+          <g>
+            {r(5, 14, 2, 2, "#c27630")}
+            {r(8, 15, 2, 1, "#c27630")}
+          </g>
+        )}
+        {etapa >= 2 && (
+          <g className="surgir">
+            {r(9, 4, 4, 1, "#2537c4")}
+            {r(7, 5, 8, 1, "#2537c4")}
+            {r(5, 6, 12, 1, "#3b53f0")}
+            {r(3, 7, 16, 1, "#3b53f0")}
+            {r(2, 8, 18, 1, "#2537c4")}
+          </g>
+        )}
+        {etapa >= 3 && (
+          <g className="surgir">
+            {r(9, 11, 4, 5, "#3b2414")}
+            {r(10, 12, 2, 4, "#0b1f4d")}
+            {r(5, 10, 3, 3, "#fcfc30")}
+            {r(14, 10, 3, 3, "#fcfc30")}
+            {r(6, 10, 1, 3, "#3b2414")}
+            {r(15, 10, 1, 3, "#3b2414")}
+          </g>
+        )}
+        {etapa >= 4 && (
+          <g className="surgir">
+            {r(10, 13, 2, 2, "#d9893b")}
+            {r(10, 13, 1, 1, "#1b1b1b")}
+            {r(11, 14, 1, 1, "#f27e8e")}
+            {r(19, 3, 1, 6, "#3b2414")}
+            {r(20, 3, 2, 2, "#fcfc30")}
+          </g>
+        )}
+      </svg>
+      <figcaption className="pixel mt-1 text-[0.6rem]">{nomes[etapa].toUpperCase()}</figcaption>
+    </figure>
   );
 }
 
