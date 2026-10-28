@@ -9,7 +9,7 @@ import { reais } from "@/lib/calculos";
 
 // ------------------------------------------------------------ recompensa
 
-type Premio = { pontos: number; titulo: string; texto?: string; id: number };
+type Premio = { pontos: number; titulo: string; texto?: string; acordou?: boolean; id: number };
 
 const Ctx = createContext<{ recompensar: (p: Omit<Premio, "id">) => void }>({ recompensar: () => {} });
 
@@ -53,7 +53,7 @@ export function ProvedorRecompensa({ children }: { children: ReactNode }) {
           >
             <Raios />
             <div className="relative">
-              <Mascote tamanho={140} humor="feliz" animacao="pula" className="mx-auto" />
+              {premio.acordou ? <CarameloAcordando /> : <Mascote tamanho={140} humor="feliz" animacao="pula" className="mx-auto" />}
               <p className="pixel mt-2 text-sm text-mare-escura">{subiu ? "Subiu de nível!" : "Conquista"}</p>
               <h2 id="titulo-premio" className="mt-1 text-2xl font-extrabold">
                 {subiu ?? premio.titulo}
@@ -69,6 +69,30 @@ export function ProvedorRecompensa({ children }: { children: ReactNode }) {
         </div>
       )}
     </Ctx.Provider>
+  );
+}
+
+// Caramelo acordando: deitado, chacoalha, levanta num pulo e abana o rabo
+function CarameloAcordando() {
+  const [fase, setFase] = useState(0);
+  useEffect(() => {
+    const t = [setTimeout(() => setFase(1), 600), setTimeout(() => setFase(2), 1400), setTimeout(() => setFase(3), 2150)];
+    return () => t.forEach(clearTimeout);
+  }, []);
+  const balao = ["Zzz...", "Hã?!", "Opa!", "Voltei!"][fase];
+  return (
+    <div className="relative mx-auto h-[140px] w-[140px]">
+      <Mascote
+        key={fase}
+        tamanho={140}
+        humor={fase < 2 ? "desmaiado" : fase === 2 ? "normal" : "feliz"}
+        animacao={fase === 0 ? "parado" : fase === 1 ? "chacoalha" : fase === 2 ? "levanta" : "pula"}
+        rotulo={fase < 2 ? "Caramelo ainda desmaiado" : "Caramelo acordado"}
+      />
+      <span key={`b${fase}`} className="surgir pixel absolute -right-6 top-0 rounded-lg border-[3px] border-ardosia bg-white px-2 py-1 text-xs" aria-hidden="true">
+        {balao}
+      </span>
+    </div>
   );
 }
 

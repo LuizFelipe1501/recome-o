@@ -105,7 +105,7 @@ export function Mascote({
 }: {
   tamanho?: number;
   humor?: Humor;
-  animacao?: "idle" | "pula" | "parado";
+  animacao?: "idle" | "pula" | "parado" | "chacoalha" | "levanta";
   className?: string;
   rotulo?: string;
 }) {
@@ -116,7 +116,13 @@ export function Mascote({
     }),
   );
   const classe =
-    humor === "desmaiado" ? (animacao === "parado" ? "mascote-deitado" : "mascote-desmaiado") : animacao === "pula" ? "mascote-pula" : animacao === "idle" ? "mascote-idle" : "";
+    animacao === "chacoalha"
+      ? "mascote-chacoalhando"
+      : animacao === "levanta"
+        ? "mascote-levantando"
+        : humor === "desmaiado"
+          ? animacao === "parado" ? "mascote-deitado" : "mascote-desmaiado"
+          : animacao === "pula" ? "mascote-pula" : animacao === "idle" ? "mascote-idle" : "";
 
   return (
     <svg

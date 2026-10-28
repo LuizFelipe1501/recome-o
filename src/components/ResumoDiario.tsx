@@ -10,6 +10,7 @@ import { diasNaSemana, dinheiroPoupado, estaDesmaiado, placar, proximaMissao } f
 import { diasEntre, hoje, reais } from "@/lib/calculos";
 import { atualizarSelo, ativarLembretes, ehIOSsemInstalar, lembretesSuportados, mostrarLembrete, permissaoAtual, registrarSW } from "@/lib/lembretes";
 import { textoLembrete } from "@/lib/textoLembrete";
+import { fraseDoDia } from "@/lib/frases";
 import type { Estado } from "@/lib/tipos";
 
 const CHAVE = "recomeco-resumo-visto";
@@ -28,10 +29,11 @@ function tendencia(e: Estado) {
 }
 
 export function ResumoDiario() {
-  const { estado, usuarioId } = useEstado();
+  const { estado, usuarioId, mensagens } = useEstado();
   const caminho = usePathname();
   const [aberto, setAberto] = useState(false);
   const [lembrete, setLembrete] = useState<string>("indisponivel");
+  const [agora] = useState(() => Date.now());
 
   const familiar = estado?.perfil.papel === "familiar";
   const fezHoje = estado ? (familiar ? estado.familia.meuCheckin.some((c) => c.data === hoje()) : estado.checkins.some((c) => c.data === hoje())) : true;
@@ -68,6 +70,9 @@ export function ResumoDiario() {
   const poupado = dinheiroPoupado(estado);
   const prox = proximaMissao(estado);
   const tend = familiar ? null : tendencia(estado);
+  const frase = fraseDoDia(estado);
+  // Recado de quem apoia nas últimas 48 horas vale mais que qualquer frase pronta
+  const recado = [...mensagens].reverse().find((m) => m.autor_id !== usuarioId && agora - new Date(m.criado).getTime() < 48 * 3600000);
   const dia = diasEntre(estado.perfil.inicio);
   const ultimoHumor = familiar
     ? [...estado.familia.meuCheckin].sort((a, b) => b.data.localeCompare(a.data))[0]?.como
@@ -108,6 +113,10 @@ export function ResumoDiario() {
         </div>
 
         <div className="space-y-3 bg-white px-5 py-5">
+          <figure className={`rounded-xl border-[3px] border-ardosia p-4 ${recado ? "bg-coral-claro" : frase.tom === "acolher" ? "bg-ceu" : frase.tom === "celebrar" ? "bg-menta-claro" : "bg-sol-claro"}`}>
+            <p className="pixel text-[0.6rem] text-ardosia-suave">{recado ? "RECADO DE QUEM TORCE POR VOCÊ" : "FRASE DO DIA"}</p>
+            <blockquote className="mt-1 font-titulo text-lg font-bold leading-snug">“{recado ? recado.texto : frase.texto}”</blockquote>
+          </figure>
           <div className="grid grid-cols-2 gap-3">
             <Bloco titulo={`Nível ${p.numeroNivel}`} valor={p.nivel.nome}>
               <div className="mt-2 h-3 overflow-hidden rounded border-2 border-ardosia bg-ceu">

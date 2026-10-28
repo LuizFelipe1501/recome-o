@@ -306,6 +306,7 @@ function CheckinJogo() {
     if (primeiro) {
       recompensar({
         pontos: pontosHabito.checkin + (estado.checkins.length === 0 ? 20 : 0),
+        acordou: desmaiadoNoInicio,
         titulo: desmaiadoNoInicio ? "O Caramelo acordou!" : final.apostou ? "Check-in honesto" : "Check-in feito",
         texto: final.apostou ? "Contar a verdade é o que faz o plano funcionar." : desmaiadoNoInicio ? "Bastou você voltar. Mais um dia contado." : "Mais um dia contado.",
       });

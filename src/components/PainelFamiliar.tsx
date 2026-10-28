@@ -57,6 +57,7 @@ export function PainelFamiliar() {
               if (primeiro)
                 recompensar({
                   pontos: pontosHabito.checkin + (estado.familia.meuCheckin.length === 0 ? 20 : 0),
+                  acordou: estaDesmaiado(estado),
                   titulo: estaDesmaiado(estado) ? "O Caramelo acordou!" : "Check-in feito",
                   texto: "Seu humor também importa.",
                 });

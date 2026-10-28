@@ -324,3 +324,17 @@ p {
 .mascote-deitado { transform-origin: 50% 50%; transform: translateY(14%) rotate(-90deg); }
 @keyframes tontas { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 .estrelas-tontas { animation: tontas 0.8s steps(2) infinite; }
+/* Caramelo acordando */
+@keyframes chacoalhar {
+  0%, 100% { transform: translateY(14%) rotate(-90deg); }
+  25% { transform: translateY(14%) rotate(-82deg); }
+  75% { transform: translateY(14%) rotate(-98deg); }
+}
+.mascote-chacoalhando { transform-origin: 50% 50%; animation: chacoalhar 0.2s linear 4; }
+@keyframes levantar {
+  0% { transform: translateY(14%) rotate(-90deg); }
+  45% { transform: translateY(-16%) rotate(12deg); }
+  70% { transform: translateY(2%) rotate(-5deg); }
+  100% { transform: none; }
+}
+.mascote-levantando { transform-origin: 50% 50%; animation: levantar 0.75s cubic-bezier(.3,1.4,.6,1) both; }
