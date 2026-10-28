@@ -8,6 +8,7 @@ import { BarraVida, Chefao, corChefao } from "@/components/Chefao";
 import { Hud, useRecompensa } from "@/components/Jogo";
 import { Fala, Mascote, type Humor } from "@/components/Mascote";
 import { PainelFamiliar } from "@/components/PainelFamiliar";
+import { FraseDoDia } from "@/components/FraseDoDia";
 import { atividades, atividadesLivres } from "@/lib/conteudo";
 import { estaDesmaiado, pontosHabito, proximaMissao } from "@/lib/missoes";
 import { useEstado } from "@/lib/estado";
@@ -56,6 +57,8 @@ function HojeApostador() {
   return (
     <div className="space-y-6 pt-4">
       <Hud fala={fala} humor={humor} />
+
+      <FraseDoDia />
 
       {ultimaMsg && (
         <section className="rounded-2xl border-[3px] border-ardosia bg-sol-claro p-4">

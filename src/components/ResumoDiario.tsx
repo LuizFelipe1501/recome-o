@@ -11,6 +11,7 @@ import { diasEntre, hoje, reais } from "@/lib/calculos";
 import { atualizarSelo, ativarLembretes, ehIOSsemInstalar, lembretesSuportados, mostrarLembrete, permissaoAtual, registrarSW } from "@/lib/lembretes";
 import { textoLembrete } from "@/lib/textoLembrete";
 import { fraseDoDia } from "@/lib/frases";
+import { EVENTO_ABRIR_RESUMO } from "./FraseDoDia";
 import type { Estado } from "@/lib/tipos";
 
 const CHAVE = "recomeco-resumo-visto";
@@ -51,6 +52,13 @@ export function ResumoDiario() {
     setLembrete(permissaoAtual());
     if (visto !== hoje()) setAberto(true);
   }, [estado?.perfil.onboardingFeito, estado?.perfil.papel, caminho]);
+
+  // O botão "Ver resumo do dia" da tela Hoje reabre o resumo a qualquer hora
+  useEffect(() => {
+    const abrir = () => setAberto(true);
+    window.addEventListener(EVENTO_ABRIR_RESUMO, abrir);
+    return () => window.removeEventListener(EVENTO_ABRIR_RESUMO, abrir);
+  }, []);
 
   useEffect(() => {
     atualizarSelo(!fezHoje);

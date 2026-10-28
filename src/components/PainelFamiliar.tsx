@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Barra, Carinhas, Ouvir } from "./ui";
 import { CartaoAcao, Hud, useRecompensa } from "./Jogo";
+import { FraseDoDia } from "./FraseDoDia";
 import { acoesFamiliar, estaDesmaiado, feitaHoje, pontosHabito } from "@/lib/missoes";
 import { cuidarDeSi, dinheiroFamilia, sinaisPrecoces } from "@/lib/conteudo";
 import { useEstado } from "@/lib/estado";
@@ -42,6 +43,8 @@ export function PainelFamiliar() {
             : "Valeu por estar aqui. Cada pequena ação de apoio conta, e conta XP também."
         }
       />
+
+      <FraseDoDia />
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-white p-5 shadow-[0_5px_0_var(--ardosia)]">
