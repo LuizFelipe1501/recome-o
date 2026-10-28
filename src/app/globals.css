@@ -18,6 +18,7 @@
   --lima: #fcfc30;
   --telha: #d7263d;
   --caramelo: #d9893b;
+  --coral-texto: #ffffff;
   --branco: #ffffff;
   --escala-fonte: 1;
 }
@@ -56,6 +57,7 @@
   --color-sol-claro: var(--sol-claro);
   --color-telha: var(--telha);
   --color-coral: var(--coral);
+  --color-coral-texto: var(--coral-texto);
   --color-coral-claro: var(--coral-claro);
   --color-menta: var(--menta);
   --color-menta-claro: var(--menta-claro);
@@ -380,31 +382,58 @@ p {
 }
 .simbolo-escala { display: none; }
 
-/* Daltonismo vermelho-verde (protanopia e deuteranopia): paleta Okabe-Ito,
-   ruim fica laranja-avermelhado e bom fica azul, que se distinguem bem. */
-:root[data-daltonismo="vermelho-verde"] {
-  --menta: #00785a;
-  --menta-claro: #cfe9f7;
-  --telha: #b84a00;
-  --coral: #c77f00;
-  --coral-claro: #fbe6c2;
-  --escala-1: #f5b48a;
-  --escala-2: #fbd7b4;
-  --escala-3: #f3f1d2;
-  --escala-4: #c6e2f7;
-  --escala-5: #8cc4ee;
+/* Cores dos chefões do Desenrola */
+:root {
+  --chefao-risco: #d7263d;
+  --chefao-sobrevivencia: #17b07a;
+  --chefao-cara: #e0832f;
+  --chefao-outra: #7b5cf0;
 }
-/* Daltonismo azul-amarelo (tritanopia): ruim fica rosa, bom fica verde-água,
-   e o meio vira cinza neutro para não confundir com o rosa. */
+
+/* Daltonismo vermelho-verde (protanopia e deuteranopia), baseado na paleta Okabe-Ito.
+   Tudo que era verde vira azul-petróleo, tudo que era vermelho vira laranja-vermelhão
+   e o laranja vira âmbar. Na escala de respostas, ruim fica laranja e bom fica azul. */
+:root[data-daltonismo="vermelho-verde"] {
+  --menta: #00838f;
+  --menta-claro: #d2eef2;
+  --telha: #a33f00;
+  --coral: #d99a00;
+  --coral-texto: #0b1f4d;
+  --coral-rotulo: #0b1f4d;
+  --coral-claro: #fbe7b5;
+  --escala-1: #f39a5c;
+  --escala-2: #f8c79c;
+  --escala-3: #ecebd6;
+  --escala-4: #a9d4f2;
+  --escala-5: #5aaee6;
+  --chefao-risco: #d55e00;
+  --chefao-sobrevivencia: #0072b2;
+  --chefao-cara: #f0e442;
+  --chefao-cara-texto: #0b1f4d;
+  --chefao-outra: #cc79a7;
+  --chefao-outra-texto: #0b1f4d;
+}
+/* Daltonismo azul-amarelo (tritanopia): azul e verde se confundem, e amarelo com lilás.
+   O verde vira verde-escuro, o vermelho vira magenta, e a escala vai de rosa a verde-água
+   com um cinza neutro no meio. */
 :root[data-daltonismo="azul-amarelo"] {
-  --menta: #00796b;
-  --menta-claro: #d2f1ec;
-  --telha: #c4123a;
-  --escala-1: #f5a3b5;
-  --escala-2: #f9cfd8;
-  --escala-3: #e4e4e4;
-  --escala-4: #bfeee6;
-  --escala-5: #86d9cc;
+  --menta: #2e7d32;
+  --menta-claro: #dcefdc;
+  --telha: #8b0f45;
+  --coral: #f2956b;
+  --coral-texto: #0b1f4d;
+  --coral-rotulo: #0b1f4d;
+  --coral-claro: #fbd9cc;
+  --escala-1: #f06b97;
+  --escala-2: #f6b3c9;
+  --escala-3: #dedede;
+  --escala-4: #9fdcc9;
+  --escala-5: #3fb59a;
+  --chefao-risco: #d81b60;
+  --chefao-sobrevivencia: #26a69a;
+  --chefao-cara: #ff8a65;
+  --chefao-cara-texto: #0b1f4d;
+  --chefao-outra: #8e8e8e;
 }
 :root[data-daltonismo="vermelho-verde"] .simbolo-escala,
 :root[data-daltonismo="azul-amarelo"] .simbolo-escala,

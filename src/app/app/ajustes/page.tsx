@@ -61,8 +61,8 @@ export default function Ajustes() {
             {(
               [
                 ["nenhum", "Cores padrão", "Sem ajuste", ["#f7b4bf", "#fef6a8", "#9fe6c4"]],
-                ["vermelho-verde", "Vermelho e verde", "Protanopia e deuteranopia, os tipos mais comuns", ["#f5b48a", "#f3f1d2", "#8cc4ee"]],
-                ["azul-amarelo", "Azul e amarelo", "Tritanopia", ["#f5a3b5", "#e4e4e4", "#86d9cc"]],
+                ["vermelho-verde", "Vermelho e verde", "Protanopia e deuteranopia, os tipos mais comuns", ["#f39a5c", "#ecebd6", "#5aaee6"]],
+                ["azul-amarelo", "Azul e amarelo", "Tritanopia", ["#f06b97", "#dedede", "#3fb59a"]],
               ] as const
             ).map(([v, t, d, cores]) => {
               const marcado = (p.daltonismo ?? "nenhum") === v;
@@ -83,6 +83,7 @@ export default function Ajustes() {
               );
             })}
           </div>
+          <PreviaCores />
         </fieldset>
 
         <p className="pt-2 text-sm text-ardosia-suave">
@@ -252,5 +253,54 @@ function Lembretes() {
         </p>
       )}
     </section>
+  );
+}
+
+// Mostra, com as cores de verdade do app, como ficam as respostas, os avisos e os chefões
+function PreviaCores() {
+  const escala = [
+    ["Muito mal", "var(--escala-1)", "M4 6h16L12 19Z", 2],
+    ["Mais ou menos", "var(--escala-3)", "M12 5a7 7 0 1 1 0 14a7 7 0 0 1 0-14Z", 1],
+    ["Muito bem", "var(--escala-5)", "M4 18h16L12 5Z", 2],
+  ] as const;
+  const chefoes = [
+    ["Perigoso", "var(--chefao-risco)"],
+    ["Da casa", "var(--chefao-sobrevivencia)"],
+    ["Dos juros", "var(--chefao-cara)"],
+    ["Outro", "var(--chefao-outra)"],
+  ] as const;
+  return (
+    <div className="mt-3 space-y-3 rounded-2xl border-[3px] border-ardosia bg-white p-4" aria-label="Prévia das cores">
+      <p className="pixel text-[0.6rem] text-ardosia-suave">PRÉVIA COM AS CORES ESCOLHIDAS</p>
+      <div className="grid grid-cols-3 gap-2">
+        {escala.map(([rotulo, cor, forma, vezes]) => (
+          <span key={rotulo} className="flex min-h-14 flex-col items-center justify-center rounded-xl border-[3px] border-ardosia px-1 text-center text-sm font-bold" style={{ background: cor }}>
+            <span className="simbolo-escala justify-center" aria-hidden="true">
+              {Array.from({ length: vezes }).map((_, i) => (
+                <svg key={i} width="14" height="14" viewBox="0 0 24 24">
+                  <path d={forma} fill="var(--ardosia)" />
+                </svg>
+              ))}
+            </span>
+            {rotulo}
+          </span>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2 text-sm font-bold">
+        <span className="rounded-lg bg-menta px-2 py-1 text-white">Feito</span>
+        <span className="rounded-lg bg-coral px-2 py-1 text-coral-texto">Atenção</span>
+        <span className="rounded-lg bg-telha px-2 py-1 text-white">Perigo</span>
+        <span className="rounded-lg bg-menta-claro px-2 py-1">Reserva</span>
+        <span className="rounded-lg bg-coral-claro px-2 py-1">Recado</span>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {chefoes.map(([rotulo, cor]) => (
+          <span key={rotulo} className="flex flex-col items-center gap-1 text-xs font-bold">
+            <span className="h-6 w-full rounded-md border-[3px] border-ardosia" style={{ background: cor }} />
+            {rotulo}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }

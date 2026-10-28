@@ -22,13 +22,13 @@ export default function Dupla() {
 
   return (
     <div className="space-y-6 pt-4">
-      <section className="overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-coral text-white shadow-[0_6px_0_var(--ardosia)]">
+      <section className="overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-coral text-coral-texto shadow-[0_6px_0_var(--ardosia)]">
         <div className="p-5 sm:p-6">
-          <p className="pixel text-xs text-sol">TRILHA DA DUPLA</p>
+          <p className="pixel text-xs" style={{ color: "var(--coral-rotulo, var(--sol))" }}>TRILHA DA DUPLA</p>
           <h1 className="mt-1 text-[1.9rem] font-extrabold leading-[1.05] sm:text-4xl">
             {ativa ? `Você e ${nomeCurto}` : familiar ? "Apoiar junto, de verdade" : "Ninguém sai das bets sozinho"}
           </h1>
-          <p className="mt-2 max-w-xl text-white/95">
+          <p className="mt-2 max-w-xl text-coral-texto/95">
             Missões feitas pelos dois. Um chama, o outro topa, e cada um confirma a sua parte. Só conta quando os dois confirmam, e aí os
             dois ganham pontos em dobro.
           </p>

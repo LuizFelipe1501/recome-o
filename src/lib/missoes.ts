@@ -28,7 +28,7 @@ export const fasesApostador: Fase[] = [
   { id: "portas", titulo: "Fechar as portas", subtitulo: "Tirar a aposta do alcance da mão", cor: "var(--mare)", corTexto: "#fff" },
   { id: "plano", titulo: "Plano para a hora H", subtitulo: "Saber o que fazer quando a vontade vem", cor: "var(--sol)", corTexto: "var(--ardosia)" },
   { id: "dinheiro", titulo: "Dinheiro de volta", subtitulo: "Dívidas no papel e a primeira reserva", cor: "var(--menta)", corTexto: "#fff" },
-  { id: "vida", titulo: "Vida que vale", subtitulo: "Ocupar o espaço que a aposta deixou", cor: "var(--coral)", corTexto: "#fff" },
+  { id: "vida", titulo: "Vida que vale", subtitulo: "Ocupar o espaço que a aposta deixou", cor: "var(--coral)", corTexto: "var(--coral-texto)" },
 ];
 
 const trilhaApostador: Missao[] = [
@@ -259,7 +259,7 @@ export const fasesFamiliar: Fase[] = [
   { id: "entender", titulo: "Entender", subtitulo: "O que está acontecendo e como afeta você", cor: "var(--mare)", corTexto: "#fff" },
   { id: "proteger", titulo: "Proteger a casa", subtitulo: "Dinheiro da família em lugar seguro", cor: "var(--sol)", corTexto: "var(--ardosia)" },
   { id: "conversar", titulo: "Conversar sem brigar", subtitulo: "Falar de um jeito que a pessoa escute", cor: "var(--menta)", corTexto: "#fff" },
-  { id: "cuidar", titulo: "Cuidar de você", subtitulo: "Você também precisa de fôlego", cor: "var(--coral)", corTexto: "#fff" },
+  { id: "cuidar", titulo: "Cuidar de você", subtitulo: "Você também precisa de fôlego", cor: "var(--coral)", corTexto: "var(--coral-texto)" },
   { id: "convidar", titulo: "Abrir a porta da ajuda", subtitulo: "Convidar para tratamento na hora certa", cor: "var(--mare-escura)", corTexto: "#fff" },
 ];
 

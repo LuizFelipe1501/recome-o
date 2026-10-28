@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BarraVida, Chefao, corChefao, nomeChefao } from "@/components/Chefao";
+import { BarraVida, Chefao, corChefao, nomeChefao, textoChefao } from "@/components/Chefao";
 import { useRecompensa } from "@/components/Jogo";
 import { Mascote } from "@/components/Mascote";
 import { Base, Ouvir } from "@/components/ui";
@@ -296,7 +296,7 @@ function CartaoDivida({ d, posicao, pagar }: { d: Divida; posicao: number; pagar
 
   return (
     <li className={`entrar-cartao overflow-hidden rounded-[1.5rem] border-[3px] border-ardosia bg-white shadow-[0_5px_0_var(--ardosia)] ${primeira ? "ring-4 ring-sol" : ""}`} style={{ animationDelay: `${posicao * 60}ms` }}>
-      <div className="flex items-center justify-between px-4 py-2 text-white" style={{ background: cor }}>
+      <div className="flex items-center justify-between px-4 py-2" style={{ background: cor, color: textoChefao[d.categoria] }}>
         <p className="pixel text-[0.65rem]">
           {primeira ? "ALVO ATUAL · " : `#${posicao} · `}
           {nomeChefao[d.categoria].toUpperCase()}

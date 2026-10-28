@@ -68,10 +68,18 @@ const FORMAS: Record<CategoriaDivida, string[]> = {
 };
 
 export const corChefao: Record<CategoriaDivida, string> = {
-  risco: "#d7263d",
-  sobrevivencia: "#17b07a",
-  cara: "#e0832f",
-  outra: "#7b5cf0",
+  risco: "var(--chefao-risco)",
+  sobrevivencia: "var(--chefao-sobrevivencia)",
+  cara: "var(--chefao-cara)",
+  outra: "var(--chefao-outra)",
+};
+
+// Cor do texto sobre a faixa do chefão (o âmbar do modo daltônico pede texto escuro)
+export const textoChefao: Record<CategoriaDivida, string> = {
+  risco: "var(--chefao-risco-texto, #fff)",
+  sobrevivencia: "var(--chefao-sobrevivencia-texto, #fff)",
+  cara: "var(--chefao-cara-texto, #fff)",
+  outra: "var(--chefao-outra-texto, #fff)",
 };
 
 export const nomeChefao: Record<CategoriaDivida, string> = {

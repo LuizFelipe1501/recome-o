@@ -174,7 +174,7 @@ export function PainelFamiliar() {
         )}
       </section>
 
-      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-coral p-5 text-white shadow-[0_5px_0_var(--ardosia)]">
+      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-coral p-5 text-coral-texto shadow-[0_5px_0_var(--ardosia)]">
         <h2 className="text-xl font-bold">Você é padrinho ou madrinha</h2>
         <p className="mt-1">
           Algumas missões da trilha valem o dobro quando são feitas com você: limpar o celular, puxar o Registrato junto, um programa
@@ -183,7 +183,7 @@ export function PainelFamiliar() {
         <Link href="/app/trilha" className="botao-jogo mt-4 w-full">
           Ver minha trilha de apoio
         </Link>
-        <p className="mt-2 text-sm text-white/90">Seu papel é apoiar e lembrar, não fiscalizar.</p>
+        <p className="mt-2 text-sm text-coral-texto/90">Seu papel é apoiar e lembrar, não fiscalizar.</p>
       </section>
 
       <section aria-labelledby="titulo-sinais">

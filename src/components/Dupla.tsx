@@ -19,7 +19,7 @@ export function Coracao({ tamanho = 28, cor = "#e0832f" }: { tamanho?: number; c
 export function AvatarParceiro({ nome, tamanho = 56 }: { nome: string; tamanho?: number }) {
   return (
     <span
-      className="grid shrink-0 place-items-center rounded-2xl border-[3px] border-ardosia bg-coral font-titulo font-extrabold text-white shadow-[0_4px_0_var(--ardosia)]"
+      className="grid shrink-0 place-items-center rounded-2xl border-[3px] border-ardosia bg-coral font-titulo font-extrabold text-coral-texto shadow-[0_4px_0_var(--ardosia)]"
       style={{ width: tamanho, height: tamanho, fontSize: tamanho * 0.42 }}
       aria-hidden="true"
     >
