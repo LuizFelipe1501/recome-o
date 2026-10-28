@@ -9,6 +9,7 @@ import { Hud, useRecompensa } from "@/components/Jogo";
 import { Fala, Mascote, type Humor } from "@/components/Mascote";
 import { PainelFamiliar } from "@/components/PainelFamiliar";
 import { FraseDoDia } from "@/components/FraseDoDia";
+import { CartaoDuplaHoje } from "@/components/Dupla";
 import { atividades, atividadesLivres } from "@/lib/conteudo";
 import { estaDesmaiado, pontosHabito, proximaMissao } from "@/lib/missoes";
 import { useEstado } from "@/lib/estado";
@@ -98,6 +99,8 @@ function HojeApostador() {
           )}
         </section>
       </div>
+
+      <CartaoDuplaHoje />
 
       <CartaoDesenrola />
 

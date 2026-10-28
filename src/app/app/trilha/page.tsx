@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Hud, useRecompensa } from "@/components/Jogo";
 import { Mascote } from "@/components/Mascote";
 import { useEstado } from "@/lib/estado";
+import { missoesDupla } from "@/lib/duplaDados";
 import { hoje } from "@/lib/calculos";
 import { estaDesmaiado, fasesDe, missaoFeita, pontosHabito, trilhaDe, type Missao } from "@/lib/missoes";
 
@@ -191,6 +192,7 @@ function Folha({
   aoConcluir: (m: Missao, dupla: boolean) => void;
   aoDesfazer: () => void;
 }) {
+  const naDupla = missoesDupla.find((d) => Object.values(d.vincula ?? {}).includes(m.id));
   useEffect(() => {
     const esc = (e: KeyboardEvent) => e.key === "Escape" && aoFechar();
     window.addEventListener("keydown", esc);
@@ -235,6 +237,11 @@ function Folha({
         </div>
 
         <div className="mt-6 space-y-3">
+          {naDupla && !feita && (
+            <Link href="/app/dupla" className="botao-jogo w-full text-lg" onClick={aoFechar}>
+              Fazer na Trilha da dupla · +{naDupla.pontos} XP
+            </Link>
+          )}
           {m.link && !feita && (
             <Link href={m.link.href} className="botao-jogo botao-jogo-azul w-full text-lg" onClick={aoFechar}>
               {m.link.rotulo}

@@ -177,3 +177,60 @@ revoke all on function public.lembretes_pendentes (text) from public, authentica
 revoke all on function public.desativar_lembrete (text, uuid) from public, authenticated;
 grant execute on function public.lembretes_pendentes (text) to anon;
 grant execute on function public.desativar_lembrete (text, uuid) to anon;
+
+-- Trilha da dupla: missões feitas por quem aposta e quem apoia juntos.
+create table if not exists public.dupla (
+  vinculo_id uuid not null references public.vinculos (id) on delete cascade,
+  missao_id text not null,
+  proposto_por uuid not null references auth.users (id) on delete cascade,
+  aceito_em timestamptz,
+  feito_apostador timestamptz,
+  feito_familiar timestamptz,
+  criado timestamptz not null default now(),
+  primary key (vinculo_id, missao_id)
+);
+create index if not exists dupla_proposto_por on public.dupla (proposto_por);
+alter table public.dupla enable row level security;
+
+drop policy if exists "dupla ler" on public.dupla;
+create policy "dupla ler" on public.dupla for select to authenticated
+  using (exists (select 1 from public.vinculos v where v.id = vinculo_id and (select auth.uid()) in (v.apostador_id, v.familiar_id)));
+drop policy if exists "dupla propor" on public.dupla;
+create policy "dupla propor" on public.dupla for insert to authenticated
+  with check (proposto_por = (select auth.uid()) and exists (
+    select 1 from public.vinculos v where v.id = vinculo_id and v.familiar_id is not null and (select auth.uid()) in (v.apostador_id, v.familiar_id)));
+drop policy if exists "dupla atualizar" on public.dupla;
+create policy "dupla atualizar" on public.dupla for update to authenticated
+  using (exists (select 1 from public.vinculos v where v.id = vinculo_id and (select auth.uid()) in (v.apostador_id, v.familiar_id)))
+  with check (exists (select 1 from public.vinculos v where v.id = vinculo_id and (select auth.uid()) in (v.apostador_id, v.familiar_id)));
+drop policy if exists "dupla recusar" on public.dupla;
+create policy "dupla recusar" on public.dupla for delete to authenticated
+  using (aceito_em is null and exists (select 1 from public.vinculos v where v.id = vinculo_id and (select auth.uid()) in (v.apostador_id, v.familiar_id)));
+
+-- Cada pessoa só confirma a própria parte, e quem propôs não aceita o próprio convite.
+create or replace function public.dupla_guardar_partes()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare v public.vinculos;
+begin
+  select * into v from public.vinculos where id = new.vinculo_id;
+  if new.feito_apostador is distinct from old.feito_apostador and auth.uid() <> v.apostador_id then
+    raise exception 'Só quem aposta confirma a própria parte.';
+  end if;
+  if new.feito_familiar is distinct from old.feito_familiar and auth.uid() is distinct from v.familiar_id then
+    raise exception 'Só quem apoia confirma a própria parte.';
+  end if;
+  if new.aceito_em is distinct from old.aceito_em and auth.uid() = old.proposto_por then
+    raise exception 'Quem propôs espera a outra pessoa aceitar.';
+  end if;
+  if new.proposto_por <> old.proposto_por or new.missao_id <> old.missao_id or new.vinculo_id <> old.vinculo_id then
+    raise exception 'Não dá para mudar a missão.';
+  end if;
+  return new;
+end; $$;
+revoke all on function public.dupla_guardar_partes() from public, anon, authenticated;
+drop trigger if exists dupla_guardar_partes on public.dupla;
+create trigger dupla_guardar_partes before update on public.dupla
+  for each row execute function public.dupla_guardar_partes();
+
+-- Atualização ao vivo nos dois aparelhos
+alter publication supabase_realtime add table public.dupla;

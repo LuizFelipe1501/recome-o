@@ -7,17 +7,19 @@ import { useEstado } from "@/lib/estado";
 import { Mascote } from "./Mascote";
 import { ProvedorRecompensa } from "./Jogo";
 import { ResumoDiario } from "./ResumoDiario";
+import { ProvedorDupla } from "@/lib/dupla";
 
 const abasApostador = [
   { href: "/app", rotulo: "Hoje", icone: "sol" },
   { href: "/app/trilha", rotulo: "Trilha", icone: "trilha" },
+  { href: "/app/dupla", rotulo: "Dupla", icone: "pessoas" },
   { href: "/app/dividas", rotulo: "Desenrola", icone: "carteira" },
-  { href: "/app/familia", rotulo: "Família", icone: "pessoas" },
   { href: "/app/apoio", rotulo: "Apoio", icone: "mao" },
 ] as const;
 
 const abasFamiliar = [
   { href: "/app", rotulo: "Hoje", icone: "sol" },
+  { href: "/app/dupla", rotulo: "Dupla", icone: "pessoas" },
   { href: "/app/trilha", rotulo: "Trilha", icone: "trilha" },
   { href: "/app/conversa", rotulo: "Conversar", icone: "balao" },
   { href: "/app/apoio", rotulo: "Apoio", icone: "mao" },
@@ -88,6 +90,7 @@ export function Casca({ children }: { children: ReactNode }) {
 
   return (
     <ProvedorRecompensa>
+      <ProvedorDupla>
       <ResumoDiario />
       <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
         <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
@@ -180,6 +183,7 @@ export function Casca({ children }: { children: ReactNode }) {
           </div>
         )}
       </div>
+      </ProvedorDupla>
     </ProvedorRecompensa>
   );
 }

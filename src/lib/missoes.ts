@@ -1,5 +1,6 @@
 import type { Estado, Papel } from "./tipos";
 import { diasAtivos, diasEntre, hoje, restante } from "./calculos";
+import { missoesDupla } from "./duplaDados";
 
 // Duas trilhas, uma para quem aposta e outra para quem apoia.
 // A ordem segue o que os estudos mostram que rende mais cedo: primeiro fechar o acesso
@@ -466,7 +467,11 @@ export function placar(e: Estado) {
       e.crises.filter((c) => c.resultado === "passou" || c.resultado === "diminuiu").length * pontosHabito.vontadeAtravessada +
       e.pagamentos.length * pontosHabito.pagamento +
       e.reserva.depositos.length * pontosHabito.deposito;
-  const deMissoes = trilha.reduce((s, m) => s + pontosDaMissao(e, m), 0);
+  // Missões da dupla que não têm par na trilha individual contam aqui (já em dobro).
+  // As que têm par marcam a missão individual como feita em dupla.
+  const papel = e.perfil.papel;
+  const duplaSemPar = missoesDupla.filter((m) => !m.vincula?.[papel] && e.missoes[`dupla-${m.id}`]);
+  const deMissoes = trilha.reduce((s, m) => s + pontosDaMissao(e, m), 0) + duplaSemPar.reduce((s, m) => s + m.pontos, 0);
   const total = habitos + deMissoes;
   const lista = familiar ? niveisFamiliar : niveis;
   const nivel = lista.filter((n) => total >= n.minimo).pop() ?? lista[0];
@@ -483,7 +488,7 @@ export function placar(e: Estado) {
     pctNivel: proximo ? ((total - nivel.minimo) / (proximo.minimo - nivel.minimo)) * 100 : 100,
     feitas: trilha.filter((m) => missaoFeita(e, m)).length,
     totalMissoes: trilha.length,
-    comPadrinho: Object.values(e.missoes).filter((m) => m.comPadrinho).length,
+    comPadrinho: Object.entries(e.missoes).filter(([k, m]) => m.comPadrinho && !k.startsWith("dupla-")).length + duplaSemPar.length,
   };
 }
 
