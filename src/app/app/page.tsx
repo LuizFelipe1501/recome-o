@@ -9,7 +9,7 @@ import { Hud, useRecompensa } from "@/components/Jogo";
 import { Fala, Mascote, type Humor } from "@/components/Mascote";
 import { PainelFamiliar } from "@/components/PainelFamiliar";
 import { atividades, atividadesLivres } from "@/lib/conteudo";
-import { pontosHabito, proximaMissao } from "@/lib/missoes";
+import { estaDesmaiado, pontosHabito, proximaMissao } from "@/lib/missoes";
 import { useEstado } from "@/lib/estado";
 import { diasEntre, diasSemApostarNoMes, hoje, ordenarDividas, progressoDividas, reais, restante } from "@/lib/calculos";
 import type { Checkin } from "@/lib/tipos";
@@ -40,9 +40,12 @@ function HojeApostador() {
   const prox = proximaMissao(estado);
   const atividadeHoje = ordemAtividades.find((id) => !(estado.atividadesFeitas[id] ?? []).some((d) => d.slice(0, 10) === hoje())) ?? ordemAtividades[0];
   const fezAtividadeHoje = Object.values(estado.atividadesFeitas).some((l) => l.some((d) => d.slice(0, 10) === hoje()));
-  const humor: Humor = checkinHoje?.apostou || (checkinHoje && checkinHoje.vontade >= 7) ? "preocupado" : checkinHoje ? "feliz" : "normal";
+  const desmaiado = estaDesmaiado(estado);
+  const humor: Humor = desmaiado ? "desmaiado" : checkinHoje?.apostou || (checkinHoje && checkinHoje.vontade >= 7) ? "preocupado" : checkinHoje ? "feliz" : "normal";
 
-  const fala = !checkinHoje
+  const fala = desmaiado
+    ? "O Caramelo desmaiou de saudade! Faz o check-in de hoje para acordar ele. Seu XP continua todo aqui."
+    : !checkinHoje
     ? `${saudacao()}${estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}! Dia ${dia} da nossa caminhada. Bora fazer o check-in?`
     : checkinHoje.apostou
       ? "Hoje teve aposta. Tudo bem, seu XP continua aqui. Amanhã a gente segue."
@@ -290,7 +293,8 @@ function CheckinJogo() {
   const [rascunho, setRascunho] = useState<Checkin>(
     existente ?? { data: hoje(), humor: 0, vontade: 0, estresse: 0, sono: 0, confianca: 0, apostou: false, valor: 0 },
   );
-  const [humor, setHumor] = useState<Humor>("normal");
+  const [desmaiadoNoInicio] = useState(() => (estado ? estaDesmaiado(estado) : false));
+  const [humor, setHumor] = useState<Humor>(desmaiadoNoInicio ? "desmaiado" : "normal");
   const [pedindoValor, setPedindoValor] = useState(false);
   if (!estado) return null;
 
@@ -302,8 +306,8 @@ function CheckinJogo() {
     if (primeiro) {
       recompensar({
         pontos: pontosHabito.checkin + (estado.checkins.length === 0 ? 20 : 0),
-        titulo: final.apostou ? "Check-in honesto" : "Check-in feito",
-        texto: final.apostou ? "Contar a verdade é o que faz o plano funcionar." : "Mais um dia contado.",
+        titulo: desmaiadoNoInicio ? "O Caramelo acordou!" : final.apostou ? "Check-in honesto" : "Check-in feito",
+        texto: final.apostou ? "Contar a verdade é o que faz o plano funcionar." : desmaiadoNoInicio ? "Bastou você voltar. Mais um dia contado." : "Mais um dia contado.",
       });
     }
   };
@@ -378,7 +382,11 @@ function CheckinJogo() {
       <div className="mt-4">
         <Fala humor={humor} tamanho={72}>
           <span key={passo} className="surgir block">
-            {pedindoValor ? "Obrigado por contar. Quanto foi, mais ou menos? Isso ajuda a ver o tamanho do prejuízo." : p.texto}
+            {pedindoValor
+              ? "Obrigado por contar. Quanto foi, mais ou menos? Isso ajuda a ver o tamanho do prejuízo."
+              : humor === "desmaiado" && passo === 0
+                ? "Psiu... desmaiei de saudade. Me acorda respondendo: como você está agora?"
+                : p.texto}
           </span>
         </Fala>
       </div>

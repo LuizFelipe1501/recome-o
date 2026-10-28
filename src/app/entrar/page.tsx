@@ -42,7 +42,7 @@ function Formulario() {
       const { data, error } = await sb.auth.signUp({
         email,
         password: senha,
-        options: { data: { papel, nome } },
+        options: { data: { papel, nome }, emailRedirectTo: `${window.location.origin}/entrar` },
       });
       if (error) setErro(traduzir(error.message));
       else if (!data.session) setAviso("Conta criada. Confira seu e-mail para confirmar e depois entre por aqui.");

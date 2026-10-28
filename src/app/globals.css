@@ -312,3 +312,15 @@ p {
 .borda-jogo { border: 3px solid var(--ardosia); }
 @keyframes balancar { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
 .no-atual { animation: balancar 1.4s ease-in-out infinite; }
+/* Caramelo desmaiado: cai de lado e fica com estrelinhas girando */
+@keyframes desmaiar {
+  0% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(0) rotate(10deg); }
+  70% { transform: translateY(14%) rotate(-96deg); }
+  85% { transform: translateY(12%) rotate(-86deg); }
+  100% { transform: translateY(14%) rotate(-90deg); }
+}
+.mascote-desmaiado { transform-origin: 50% 50%; animation: desmaiar 1s ease-in 0.2s both; }
+.mascote-deitado { transform-origin: 50% 50%; transform: translateY(14%) rotate(-90deg); }
+@keyframes tontas { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+.estrelas-tontas { animation: tontas 0.8s steps(2) infinite; }

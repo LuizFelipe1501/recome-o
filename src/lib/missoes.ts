@@ -532,3 +532,18 @@ export function dinheiroPoupado(e: Estado) {
 export function feitaHoje(e: Estado, tipo: string) {
   return e.familia.acoes.some((a) => a.tipo === tipo && a.data === hoje());
 }
+
+// O Caramelo desmaia de saudade quando a missão do dia ficou para trás:
+// sem check-in hoje e já passou do horário combinado, ou ontem também ficou sem.
+// É só uma brincadeira visual: ninguém perde XP nem nível por isso.
+export function estaDesmaiado(e: Estado, agora = new Date()) {
+  const familiar = e.perfil.papel === "familiar";
+  const datas = new Set(familiar ? e.familia.meuCheckin.map((c) => c.data) : e.checkins.map((c) => c.data));
+  if (datas.size === 0 || datas.has(hoje())) return false;
+  const ontem = new Date(agora);
+  ontem.setDate(ontem.getDate() - 1);
+  const dataOntem = `${ontem.getFullYear()}-${String(ontem.getMonth() + 1).padStart(2, "0")}-${String(ontem.getDate()).padStart(2, "0")}`;
+  const [h, m] = (e.perfil.horarioCheckin || "21:00").split(":").map(Number);
+  const passouDaHora = agora.getHours() * 60 + agora.getMinutes() >= h * 60 + (m || 0);
+  return passouDaHora || !datas.has(dataOntem);
+}

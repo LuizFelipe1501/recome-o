@@ -6,7 +6,7 @@ import { Hud, useRecompensa } from "@/components/Jogo";
 import { Mascote } from "@/components/Mascote";
 import { useEstado } from "@/lib/estado";
 import { hoje } from "@/lib/calculos";
-import { fasesDe, missaoFeita, pontosHabito, trilhaDe, type Missao } from "@/lib/missoes";
+import { estaDesmaiado, fasesDe, missaoFeita, pontosHabito, trilhaDe, type Missao } from "@/lib/missoes";
 
 // Deslocamento horizontal dos nós, em zigue-zague
 const ONDA = [0, 1, 1.6, 1, 0, -1, -1.6, -1];
@@ -38,7 +38,7 @@ export default function Trilha() {
   return (
     <div className="space-y-6 pt-4">
       <Hud
-        humor="feliz"
+        humor={estaDesmaiado(estado) ? "desmaiado" : "feliz"}
         fala={
           proxima ? (
             <>

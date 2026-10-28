@@ -1,5 +1,5 @@
 import type { Estado } from "./tipos";
-import { diasNaSemana, dinheiroPoupado, placar, proximaMissao } from "./missoes";
+import { diasNaSemana, dinheiroPoupado, estaDesmaiado, placar, proximaMissao } from "./missoes";
 import { diasEntre, hoje, reais } from "./calculos";
 
 // Texto do lembrete diário. Varia todo dia e sempre mostra um avanço concreto.
@@ -28,6 +28,9 @@ export function textoLembrete(e: Estado, agora = new Date()) {
         ...(prox ? [{ titulo: "Missão nova na trilha", corpo: `${prox.titulo}: vale +${prox.pontos} XP${prox.compartilhavel ? ", o dobro com o padrinho" : ""}.` }] : []),
       ];
 
-  const escolhido = opcoes[(agora.getDate() + agora.getMonth()) % opcoes.length];
+  // Se o Caramelo já desmaiou (ontem ficou sem check-in), o aviso conta isso com bom humor
+  const escolhido = estaDesmaiado(e, agora) && !fez
+    ? { titulo: "O Caramelo desmaiou de saudade", corpo: `${nome}um check-in de um minuto acorda ele. Seu XP continua todo lá.` }
+    : opcoes[(agora.getDate() + agora.getMonth()) % opcoes.length];
   return { ...escolhido, fez, url: familiar ? "/app" : "/app#checkin" };
 }

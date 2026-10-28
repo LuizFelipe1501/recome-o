@@ -120,12 +120,60 @@ grant execute on function public.aceitar_convite (text) to authenticated;
 
 -- Lembretes diários (notificações push)
 create table if not exists public.lembretes (
-  user_id uuid primary key references auth.users on delete cascade,
+  user_id uuid primary key references auth.users (id) on delete cascade,
   inscricao jsonb not null,
   horario text not null default '20:00',
   ativo boolean not null default true,
   atualizado timestamptz not null default now()
 );
 alter table public.lembretes enable row level security;
+drop policy if exists "lembretes do proprio usuario" on public.lembretes;
 create policy "lembretes do proprio usuario" on public.lembretes
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+-- O envio automático roda no servidor da Vercel sem a chave de serviço:
+-- ele chama as funções abaixo com uma senha guardada num esquema privado.
+create schema if not exists privado;
+revoke all on schema privado from public, anon, authenticated;
+create table if not exists privado.config (chave text primary key, valor text not null);
+-- Rode uma vez, trocando pelo valor de CRON_SECRET da Vercel:
+-- insert into privado.config values ('cron_secret', 'SUA_SENHA') on conflict (chave) do update set valor = excluded.valor;
+
+create or replace function public.lembretes_pendentes (p_segredo text)
+returns table (user_id uuid, inscricao jsonb, dados jsonb)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if p_segredo is null or p_segredo <> (select valor from privado.config where chave = 'cron_secret') then
+    raise exception 'não autorizado';
+  end if;
+  return query
+    select l.user_id, l.inscricao, e.dados
+      from public.lembretes l
+      join public.estados e on e.user_id = l.user_id
+     where l.ativo;
+end;
+$$;
+
+create or replace function public.desativar_lembrete (p_segredo text, p_user uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if p_segredo is null or p_segredo <> (select valor from privado.config where chave = 'cron_secret') then
+    raise exception 'não autorizado';
+  end if;
+  update public.lembretes set ativo = false where user_id = p_user;
+end;
+$$;
+
+revoke all on function public.lembretes_pendentes (text) from public, authenticated;
+revoke all on function public.desativar_lembrete (text, uuid) from public, authenticated;
+grant execute on function public.lembretes_pendentes (text) to anon;
+grant execute on function public.desativar_lembrete (text, uuid) to anon;

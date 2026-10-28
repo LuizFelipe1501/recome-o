@@ -5,36 +5,37 @@ import { textoLembrete } from "@/lib/textoLembrete";
 import type { Estado } from "@/lib/tipos";
 
 // Chamado pelo agendador da Vercel (vercel.json). Manda o lembrete do dia para quem
-// ainda não fez o check-in. Precisa das chaves VAPID e da chave de serviço do Supabase.
+// ainda não fez o check-in. A leitura passa por funções do banco protegidas pela
+// mesma senha do agendador (CRON_SECRET), sem precisar da chave de serviço.
 export async function GET(request: Request) {
   await connection(); // sempre roda na hora, nunca no build
   const segredo = process.env.CRON_SECRET;
-  if (segredo && request.headers.get("authorization") !== `Bearer ${segredo}`) {
+  if (!segredo || request.headers.get("authorization") !== `Bearer ${segredo}`) {
     return new Response("Não autorizado", { status: 401 });
   }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const servico = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const chave = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const publica = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privada = process.env.VAPID_PRIVATE_KEY;
-  if (!url || !servico || !publica || !privada) {
+  if (!url || !chave || !publica || !privada) {
     return Response.json({ enviados: 0, aviso: "Lembretes ainda não configurados" });
   }
-  webpush.setVapidDetails("mailto:contato@recomeco.app", publica, privada);
-  const sb = createClient(url, servico, { auth: { persistSession: false } });
+  webpush.setVapidDetails("mailto:luizfelipeccarneiro@gmail.com", publica, privada);
+  const sb = createClient(url, chave, { auth: { persistSession: false } });
 
-  const { data: inscritos } = await sb.from("lembretes").select("user_id, inscricao").eq("ativo", true);
+  const { data: inscritos, error } = await sb.rpc("lembretes_pendentes", { p_segredo: segredo });
+  if (error) return Response.json({ enviados: 0, erro: error.message }, { status: 500 });
+
   let enviados = 0;
-  for (const i of inscritos ?? []) {
-    const { data } = await sb.from("estados").select("dados").eq("user_id", i.user_id).maybeSingle();
-    if (!data?.dados) continue;
-    const t = textoLembrete(data.dados as Estado);
+  for (const i of (inscritos ?? []) as { user_id: string; inscricao: webpush.PushSubscription; dados: Estado }[]) {
+    const t = textoLembrete(i.dados);
     if (t.fez) continue;
     try {
       await webpush.sendNotification(i.inscricao, JSON.stringify({ titulo: t.titulo, corpo: t.corpo, url: t.url }));
       enviados++;
     } catch (erro) {
       const status = (erro as { statusCode?: number }).statusCode;
-      if (status === 404 || status === 410) await sb.from("lembretes").update({ ativo: false }).eq("user_id", i.user_id);
+      if (status === 404 || status === 410) await sb.rpc("desativar_lembrete", { p_segredo: segredo, p_user: i.user_id });
     }
   }
   return Response.json({ enviados });

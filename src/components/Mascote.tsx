@@ -45,7 +45,7 @@ const CORES: Record<string, string> = {
   R: "#e86a8a",
 };
 
-export type Humor = "normal" | "feliz" | "preocupado" | "dormindo";
+export type Humor = "normal" | "feliz" | "preocupado" | "dormindo" | "desmaiado";
 
 type Pixel = [number, number, string];
 
@@ -62,6 +62,14 @@ const EXPRESSOES: Record<Humor, Pixel[]> = {
     [5, 7, "K"], [5, 8, "K"], [4, 9, "K"],
     [4, 14, "K"], [5, 15, "K"], [5, 16, "K"],
     [14, 11, "L"], [14, 12, "L"], [15, 11, "K"], [15, 12, "K"],
+  ],
+  // Olhos em X e língua para fora: desmaiou de saudade
+  desmaiado: [
+    [5, 6, "C"], [5, 7, "C"], [5, 8, "C"], [6, 6, "C"], [6, 7, "C"], [6, 8, "C"], [7, 6, "C"], [7, 7, "C"], [7, 8, "C"],
+    [5, 15, "C"], [5, 16, "C"], [5, 17, "C"], [6, 15, "C"], [6, 16, "C"], [6, 17, "C"], [7, 15, "C"], [7, 16, "C"], [7, 17, "C"],
+    [5, 6, "K"], [6, 7, "K"], [7, 8, "K"], [5, 8, "K"], [7, 6, "K"],
+    [5, 15, "K"], [6, 16, "K"], [7, 17, "K"], [5, 17, "K"], [7, 15, "K"],
+    [15, 11, "P"], [15, 12, "P"], [16, 11, "P"], [16, 12, "P"], [17, 11, "P"], [17, 12, "K"],
   ],
   dormindo: [
     [6, 7, "C"], [6, 8, "C"], [7, 7, "K"], [7, 8, "K"],
@@ -107,7 +115,8 @@ export function Mascote({
       if (c !== ".") base.push([y, x, c]);
     }),
   );
-  const classe = animacao === "pula" ? "mascote-pula" : animacao === "idle" ? "mascote-idle" : "";
+  const classe =
+    humor === "desmaiado" ? (animacao === "parado" ? "mascote-deitado" : "mascote-desmaiado") : animacao === "pula" ? "mascote-pula" : animacao === "idle" ? "mascote-idle" : "";
 
   return (
     <svg
@@ -125,7 +134,7 @@ export function Mascote({
           <Pixels lista={PISCAR} />
         </g>
       )}
-      {humor !== "dormindo" && humor !== "preocupado" ? (
+      {humor !== "dormindo" && humor !== "preocupado" && humor !== "desmaiado" ? (
         <>
           <g className="rabo-a">
             <Pixels lista={RABO_A} />
@@ -136,6 +145,17 @@ export function Mascote({
         </>
       ) : (
         <Pixels lista={RABO_B} />
+      )}
+      {humor === "desmaiado" && (
+        <g className="estrelas-tontas">
+          <rect x="1" y="1" width="1" height="1" fill="#fcfc30" />
+          <rect x="0" y="2" width="3" height="1" fill="#fcfc30" />
+          <rect x="1" y="3" width="1" height="1" fill="#fcfc30" />
+          <rect x="21" y="0" width="1" height="1" fill="#fcfc30" />
+          <rect x="20" y="1" width="3" height="1" fill="#fcfc30" />
+          <rect x="21" y="2" width="1" height="1" fill="#fcfc30" />
+          <rect x="11" y="-0.5" width="1" height="1" fill="#ffffff" />
+        </g>
       )}
       {humor === "dormindo" && (
         <text x="19" y="2" fontSize="4" fill="#3b53f0" className="pixel">

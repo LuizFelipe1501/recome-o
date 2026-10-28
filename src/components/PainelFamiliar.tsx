@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Barra, Carinhas, Ouvir } from "./ui";
 import { CartaoAcao, Hud, useRecompensa } from "./Jogo";
-import { acoesFamiliar, feitaHoje, pontosHabito } from "@/lib/missoes";
+import { acoesFamiliar, estaDesmaiado, feitaHoje, pontosHabito } from "@/lib/missoes";
 import { cuidarDeSi, dinheiroFamilia, sinaisPrecoces } from "@/lib/conteudo";
 import { useEstado } from "@/lib/estado";
 import { hoje } from "@/lib/calculos";
@@ -33,9 +33,11 @@ export function PainelFamiliar() {
   return (
     <div className="space-y-6 pt-4">
       <Hud
-        humor={meuHoje !== undefined && meuHoje <= 2 ? "preocupado" : "feliz"}
+        humor={estaDesmaiado(estado) ? "desmaiado" : meuHoje !== undefined && meuHoje <= 2 ? "preocupado" : "feliz"}
         fala={
-          meuHoje === undefined
+          estaDesmaiado(estado)
+            ? "O Caramelo desmaiou de saudade! Conta como você está hoje para acordar ele."
+            : meuHoje === undefined
             ? `Oi${estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}! Como você está hoje? Quem apoia também precisa de cuidado.`
             : "Valeu por estar aqui. Cada pequena ação de apoio conta, e conta XP também."
         }
@@ -52,7 +54,12 @@ export function PainelFamiliar() {
                 ...s,
                 familia: { ...s.familia, meuCheckin: [...s.familia.meuCheckin.filter((c) => c.data !== hoje()), { data: hoje(), como: v }] },
               }));
-              if (primeiro) recompensar({ pontos: pontosHabito.checkin + (estado.familia.meuCheckin.length === 0 ? 20 : 0), titulo: "Check-in feito", texto: "Seu humor também importa." });
+              if (primeiro)
+                recompensar({
+                  pontos: pontosHabito.checkin + (estado.familia.meuCheckin.length === 0 ? 20 : 0),
+                  titulo: estaDesmaiado(estado) ? "O Caramelo acordou!" : "Check-in feito",
+                  texto: "Seu humor também importa.",
+                });
             }}
           />
           {meuHoje !== undefined && meuHoje <= 2 && (

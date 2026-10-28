@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Anel } from "./Jogo";
 import { Mascote } from "./Mascote";
 import { useEstado } from "@/lib/estado";
-import { diasNaSemana, dinheiroPoupado, placar, proximaMissao } from "@/lib/missoes";
+import { diasNaSemana, dinheiroPoupado, estaDesmaiado, placar, proximaMissao } from "@/lib/missoes";
 import { diasEntre, hoje, reais } from "@/lib/calculos";
 import { atualizarSelo, ativarLembretes, ehIOSsemInstalar, lembretesSuportados, mostrarLembrete, permissaoAtual, registrarSW } from "@/lib/lembretes";
 import { textoLembrete } from "@/lib/textoLembrete";
@@ -95,10 +95,15 @@ export function ResumoDiario() {
           <button type="button" onClick={fechar} className="absolute right-3 top-3 rounded-lg p-2 text-2xl leading-none hover:bg-white/50" aria-label="Fechar resumo">
             ×
           </button>
-          <Mascote tamanho={120} humor={ultimoHumor !== undefined && ultimoHumor <= 2 ? "preocupado" : "feliz"} animacao="pula" className="mx-auto" />
+          <Mascote
+            tamanho={120}
+            humor={estaDesmaiado(estado) ? "desmaiado" : ultimoHumor !== undefined && ultimoHumor <= 2 ? "preocupado" : "feliz"}
+            animacao="pula"
+            className="mx-auto"
+          />
           <p className="pixel mt-1 text-xs">DIA {dia} · RESUMO</p>
           <h2 id="titulo-resumo" className="mt-1 text-2xl font-extrabold">
-            {fezHoje ? "Olha só o seu avanço" : `Oi${estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}! Como você está hoje?`}
+            {estaDesmaiado(estado) ? "O Caramelo desmaiou de saudade!" : fezHoje ? "Olha só o seu avanço" : `Oi${estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}! Como você está hoje?`}
           </h2>
         </div>
 
@@ -157,7 +162,7 @@ export function ResumoDiario() {
             </button>
           ) : (
             <Link href={familiar ? "/app" : "/app#checkin"} className="botao-jogo w-full text-lg" onClick={fechar}>
-              Fazer o check-in de hoje
+              {estaDesmaiado(estado) ? "Acordar o Caramelo com o check-in" : "Fazer o check-in de hoje"}
             </Link>
           )}
         </div>
