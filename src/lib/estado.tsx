@@ -79,6 +79,7 @@ const normalizar = (e: Partial<Estado>): Estado => {
     prefs: { ...base.prefs, ...e.prefs },
     trava: { ...base.trava, ...e.trava },
     reserva: { ...base.reserva, ...e.reserva },
+    rotina: { ...base.rotina, ...e.rotina },
   } as Estado;
 };
 

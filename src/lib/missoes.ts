@@ -198,6 +198,18 @@ const trilhaApostador: Missao[] = [
     link: { href: "/app/dividas", rotulo: "Guardar" },
   },
   {
+    id: "agenda-risco",
+    fase: "vida",
+    titulo: "Montar a agenda da hora de risco",
+    descricao: "Marcar os horários em que a vontade aparece e escolher o que fazer no lugar.",
+    passos: ["Abra Minha rotina.", "Coloque pelo menos dois momentos: por exemplo, a noite e o fim de semana de jogo.", "Para cada um, escolha uma atividade que caiba na sua vida."],
+    porque:
+      "Não saber o que fazer com o tempo livre é uma das barreiras mais citadas por quem tenta parar (Gainsbury, 2014). Decidir antes o que fazer na hora de risco é a base dos planos Se... então.",
+    pontos: 40,
+    automatica: (e) => (e.rotina?.planos.length ?? 0) >= 2,
+    link: { href: "/app/rotina", rotulo: "Abrir minha rotina" },
+  },
+  {
     id: "programa-sem-aposta",
     fase: "vida",
     titulo: "Um programa sem aposta",
@@ -450,6 +462,7 @@ export const pontosHabito = {
   deposito: 15,
   acaoFamiliar: 10,
   boasVindas: 30, // primeira conversa com o Caramelo, uma vez só
+  rotina: 10, // cada momento de risco atravessado com a atividade combinada
 };
 
 // Ações rápidas do dia para quem apoia (cada uma vale pontos uma vez por dia)
@@ -470,7 +483,8 @@ export function placar(e: Estado) {
       Object.values(e.atividadesFeitas).reduce((s, l) => s + l.length, 0) * pontosHabito.atividade +
       e.crises.filter((c) => c.resultado === "passou" || c.resultado === "diminuiu").length * pontosHabito.vontadeAtravessada +
       e.pagamentos.length * pontosHabito.pagamento +
-      e.reserva.depositos.length * pontosHabito.deposito);
+      e.reserva.depositos.length * pontosHabito.deposito +
+      Object.values(e.rotina?.feitos ?? {}).reduce((s, l) => s + l.length, 0) * pontosHabito.rotina);
   // Missões da dupla que não têm par na trilha individual contam aqui (já em dobro).
   // As que têm par marcam a missão individual como feita em dupla.
   const papel = e.perfil.papel;

@@ -51,6 +51,16 @@ export type Trava = {
   pedidoSaida?: string; // ISO de quando pediu para desfazer
 };
 
+// Agenda da hora de risco: um momento em que a vontade costuma aparecer
+// e a atividade que a pessoa escolheu fazer no lugar da aposta.
+export type PlanoRotina = {
+  id: string;
+  momento: string;
+  dias: number[]; // 0 = domingo ... 6 = sábado
+  hora: string; // HH:MM
+  atividade: string;
+};
+
 export type Estado = {
   versao: 1;
   perfil: {
@@ -90,6 +100,7 @@ export type Estado = {
     daltonismo: "nenhum" | "vermelho-verde" | "azul-amarelo";
     legendas: boolean;
   };
+  rotina: { planos: PlanoRotina[]; feitos: Record<string, string[]> }; // feitos por data AAAA-MM-DD
   carinhos: number; // vezes que a pessoa fez carinho no Caramelo
   medalhasVistas: string[];
 };
@@ -126,6 +137,7 @@ export const estadoInicial = (papel: Papel = "apostador", nome = ""): Estado => 
     acoes: [],
   },
   prefs: { fonte: "normal", contraste: "normal", movimento: "normal", lembrete: false, daltonismo: "nenhum", legendas: true },
+  rotina: { planos: [], feitos: {} },
   carinhos: 0,
   medalhasVistas: [],
 });

@@ -180,6 +180,10 @@ export default function Comecar() {
                 <input id="nome" className="campo" value={p.nome} autoComplete="nickname" onChange={(e) => setPerfil({ nome: e.target.value })} />
                 <Ditado aoTexto={(t) => setPerfil({ nome: juntarTexto("", t).replace(/[.!?]$/, "") })} rotulo="Falar meu nome" />
               </div>
+              <p className="rounded-xl bg-ceu p-3 text-sm">
+                <strong>Seus dados são seus.</strong> O NonBet não acessa sua conta no banco e, se você chamar alguém da família, ela vê só o
+                que você escolher mostrar.
+              </p>
               {familiar && (
                 <div>
                   <label className="rotulo" htmlFor="relacao">

@@ -26,6 +26,7 @@ const D = {
   olho: [".......", "..XXX..", ".X...X.", "X..X..X", ".X...X.", "..XXX..", "......."],
   coracao: [".......", ".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."],
   calendario: ["X.....X", "XXXXXXX", "X.....X", "X.X.X.X", "X.....X", "X.X.X.X", "XXXXXXX"],
+  relogio: ["..XXX..", ".X...X.", "X..X..X", "X..XX.X", "X.....X", ".X...X.", "..XXX.."],
 };
 
 export const medalhas: Medalha[] = [
@@ -40,6 +41,7 @@ export const medalhas: Medalha[] = [
   { id: "casinha", titulo: "Casinha de pé", como: "Guarde dinheiro na reserva", desenho: D.casa, cor: "var(--menta-claro)", ganhou: (e) => e.reserva.depositos.length >= 1 },
   { id: "combinado", titulo: "Palavra dada", como: "Faça o seu combinado", desenho: D.aperto, cor: "var(--ceu)", ganhou: (e) => e.trava.ativa || Boolean(e.trava.inicio) },
   { id: "carinho", titulo: "Melhores amigos", como: "Faça carinho no Caramelo", desenho: D.coracao, cor: "var(--coral-claro)", ganhou: (e) => (e.carinhos ?? 0) >= 1 },
+  { id: "rotina-nova", titulo: "Rotina nova", como: "Cumpra 7 vezes a sua agenda da hora de risco", desenho: D.relogio, cor: "var(--menta-claro)", ganhou: (e) => Object.values(e.rotina?.feitos ?? {}).reduce((s, l) => s + l.length, 0) >= 7 },
   { id: "um-mes", titulo: "Um mês firme", como: "Chegue a 20 check-ins", desenho: D.coroa, cor: "var(--sol)", ganhou: (e) => e.checkins.length >= 20 },
 ];
 

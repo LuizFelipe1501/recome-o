@@ -325,8 +325,13 @@ export const contatos: Contato[] = [
   },
   {
     nome: "Jogadores Anônimos",
-    oQue: "Grupos de ajuda mútua, gratuitos, com reuniões presenciais e online em várias cidades.",
-    como: "Busque por Jogadores Anônimos e a sua cidade.",
+    oQue: "Grupos de ajuda mútua, gratuitos, com quem já passou por isso. Tem reunião online todos os dias, e na primeira você pode só ouvir.",
+    como: "Busque por Jogadores Anônimos reunião online, ou Jogadores Anônimos e a sua cidade.",
+  },
+  {
+    nome: "Jog-Anon",
+    oQue: "O grupo paralelo dos Jogadores Anônimos para familiares e amigos de quem aposta.",
+    como: "Busque por Jog-Anon e a sua cidade, ou pergunte numa reunião dos Jogadores Anônimos.",
   },
   {
     nome: "Ligue 180",

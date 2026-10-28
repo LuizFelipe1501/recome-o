@@ -57,6 +57,12 @@ function Icone({ nome }: { nome: string }) {
         </>
       )}
       {nome === "balao" && <path d="M4 5h16v11H9l-5 4V5Z" {...p} />}
+      {nome === "relogio" && (
+        <>
+          <circle cx="12" cy="12" r="9" {...p} />
+          <path d="M12 7v5l3 2" {...p} />
+        </>
+      )}
       {nome === "ajustes" && (
         <>
           <circle cx="12" cy="12" r="3" {...p} />
@@ -120,6 +126,20 @@ export function Casca({ children }: { children: ReactNode }) {
                     </Link>
                   </li>
                 ))}
+                {!familiar && (
+                  <li>
+                    <Link
+                      href="/app/rotina"
+                      aria-current={ativa("/app/rotina") ? "page" : undefined}
+                      className={`flex items-center gap-3 rounded-xl border-[3px] px-3 py-2.5 font-bold ${
+                        ativa("/app/rotina") ? "border-ardosia bg-white shadow-[0_4px_0_var(--ardosia)]" : "border-transparent hover:bg-white/50"
+                      }`}
+                    >
+                      <Icone nome="relogio" />
+                      Minha rotina
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <Link
                     href="/app/ajustes"

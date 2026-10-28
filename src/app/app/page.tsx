@@ -14,6 +14,7 @@ import { atividades, atividadesLivres } from "@/lib/conteudo";
 import { estaDesmaiado, pontosHabito, proximaMissao } from "@/lib/missoes";
 import { falaDoCaramelo } from "@/lib/falas";
 import { Medalhas } from "@/components/Medalhas";
+import { CartaoRotinaHoje } from "@/components/Rotina";
 import { useEstado } from "@/lib/estado";
 import { diasEntre, diasSemApostarNoMes, hoje, ordenarDividas, progressoDividas, reais, restante } from "@/lib/calculos";
 import type { Checkin } from "@/lib/tipos";
@@ -106,6 +107,8 @@ function HojeApostador() {
           )}
         </section>
       </div>
+
+      <CartaoRotinaHoje />
 
       <Medalhas />
 

@@ -41,6 +41,18 @@ export default function Apoio() {
         ))}
       </section>
 
+      <section className="rounded-[1.75rem] border-[3px] border-ardosia bg-sol-claro p-5" aria-labelledby="titulo-pares">
+        <h2 id="titulo-pares" className="text-xl font-bold">
+          Conversar com quem já passou por isso
+        </h2>
+        <p className="mt-1">
+          {familiar
+            ? "No Jog-Anon você encontra outros familiares que vivem a mesma situação. Ouvir quem já atravessou isso tira o peso de achar que só acontece com você."
+            : "Nos Jogadores Anônimos tem reunião online todos os dias. Ninguém julga, ninguém cobra, e na primeira vez você pode só ouvir."}
+        </p>
+        <p className="mt-2 text-sm text-ardosia-suave">Dica: marque uma reunião como atividade na sua rotina, em Minha rotina.</p>
+      </section>
+
       <section className="space-y-3" aria-labelledby="titulo-rede">
         <h2 id="titulo-rede" className="text-xl font-bold">
           Tratamento e apoio gratuitos

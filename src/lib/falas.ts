@@ -145,6 +145,18 @@ export function falaDoCaramelo(e: Estado, agora = new Date()): FalaCaramelo {
     return { texto: doDia(checkinBom), humor: "feliz" };
   }
 
+  // Hora de risco marcada na rotina: avisa uma hora antes até uma hora depois
+  const minutos = agora.getHours() * 60 + agora.getMinutes();
+  const proximo = (e.rotina?.planos ?? []).find((p) => {
+    if (!p.dias.includes(agora.getDay())) return false;
+    const [h, m] = p.hora.split(":").map(Number);
+    const diff = h * 60 + (m || 0) - minutos;
+    return diff >= -60 && diff <= 60;
+  });
+  if (proximo && !(e.rotina?.feitos[hoje()] ?? []).includes(proximo.id)) {
+    return { texto: `Está chegando sua hora de risco: ${proximo.momento.toLowerCase()}. O combinado é ${proximo.atividade.toLowerCase()}. Bora juntos?`, humor: "pensativo" };
+  }
+
   // Ainda sem check-in hoje
   const dia = diasEntre(e.perfil.inicio);
   if (marcos[dia]) return marcos[dia];
