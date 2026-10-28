@@ -38,7 +38,7 @@ export const gatilhos: Gatilho[] = [
     id: "social",
     titulo: "Amigos ou jogo de futebol",
     descricao: "Todo mundo apostando, grupo, bolão, final de campeonato.",
-    atividades: ["frase-pronta", "armadilha-entendo", "adiar"],
+    atividades: ["frase-pronta", "site-clandestino", "armadilha-entendo", "adiar"],
   },
 ];
 
@@ -180,6 +180,32 @@ export const atividades: Record<string, Atividade> = {
     ],
     base: "Ilusão de controle e quase acerto (Chase e Clark, 2010).",
   },
+  "site-clandestino": {
+    id: "site-clandestino",
+    titulo: "O site clandestino",
+    minutos: 2,
+    tipo: "cartas",
+    intro: "Desde a proibição, todo site de aposta que continua no ar é ilegal. Leia cada pensamento e vire a carta.",
+    cartas: [
+      {
+        pensamento: "É só achar um site que ainda funciona.",
+        resposta: "Site que segue no ar depois da proibição é clandestino. Lá não tem limite de gasto, não tem autoexclusão e não tem a quem reclamar.",
+      },
+      {
+        pensamento: "Se eu ganhar, eu saco e paro.",
+        resposta: "No site clandestino nem o saque é garantido. Se a conta for travada ou o site sumir, o dinheiro some junto, e não existe órgão para cobrar.",
+      },
+      {
+        pensamento: "Ganhei um bônus, não estou arriscando nada.",
+        resposta: "Bônus é isca. Costuma vir com regras que prendem o dinheiro até você apostar muito mais do que recebeu.",
+      },
+      {
+        pensamento: "Todo mundo do grupo está jogando nesse site.",
+        resposta: "Divulgar aposta está proibido, e quem manda o link costuma ganhar comissão quando você perde. Sair do grupo protege você.",
+      },
+    ],
+    base: "Correção de pensamentos, núcleo da TCC. Cenário depois da MP 1.394, de setembro de 2026, que proibiu as apostas de quota fixa no Brasil.",
+  },
   "frase-pronta": {
     id: "frase-pronta",
     titulo: "Frases para recusar",
@@ -259,6 +285,7 @@ export const atividadesLivres = [
   "armadilha-recuperar",
   "armadilha-dinheiro",
   "armadilha-entendo",
+  "site-clandestino",
   "frase-pronta",
 ];
 

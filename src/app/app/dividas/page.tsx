@@ -91,11 +91,14 @@ export default function Dividas() {
       </section>
 
       <section className="rounded-2xl border-[3px] border-ardosia bg-white p-5">
-        <h2 className="text-lg font-bold">Uma linha do Desenrola só para quem saiu das bets</h2>
+        <h2 className="text-lg font-bold">Desenrola 3.0 com acompanhamento</h2>
         <p className="mt-1">
-          Esta é a nossa proposta: renegociação com desconto para dívidas ligadas a apostas, acompanhada de perto. Quem entra
-          assume missões de pagamento que cabem no mês e recebe apoio emocional no mesmo app, porque renegociar sem apoio deixa a
-          porta aberta para a recaída.
+          O Desenrola 3.0, previsto para novembro, vai renegociar dívidas atrasadas de milhões de famílias, muitas delas
+          endividadas por apostas. Renegociar sem apoio deixa a porta aberta para a recaída.
+        </p>
+        <p className="mt-2">
+          Esta é a nossa proposta: quem renegocia uma dívida ligada a aposta assume missões de pagamento que cabem no mês e recebe
+          apoio emocional no mesmo app, junto com a família se quiser.
         </p>
         <p className="mt-2 text-sm text-ardosia-suave">Protótipo: os valores são os que você digita, e não há ligação com nenhum banco.</p>
       </section>
@@ -363,7 +366,7 @@ function DinheiroExtra() {
       </h2>
       <p className="mt-1">
         Dinheiro na mão de repente é um dos momentos de maior risco. Decida agora, com a cabeça fria, para onde vai o 13º, a
-        restituição ou um acerto.
+        restituição, um acerto ou o saldo de aposta que o banco devolveu depois da proibição.
       </p>
       <form
         className="mt-4 space-y-3"
@@ -381,6 +384,7 @@ function DinheiroExtra() {
               De onde
             </label>
             <select id="origem" className="campo" value={origem} onChange={(e) => setOrigem(e.target.value)}>
+              <option>Saldo de aposta devolvido</option>
               <option>13º salário</option>
               <option>Restituição do imposto</option>
               <option>Acerto ou rescisão</option>
@@ -406,6 +410,12 @@ function DinheiroExtra() {
             ))}
           </select>
         </div>
+        {origem === "Saldo de aposta devolvido" && (
+          <p className="rounded-xl bg-sol-claro p-3 text-sm">
+            Esse dinheiro já esteve na aposta. Mandar para uma dívida ou para a reserva fecha esse ciclo e tira o valor de perto da
+            próxima vontade.
+          </p>
+        )}
         <button type="submit" className="botao-linha w-full">
           Guardar decisão
         </button>

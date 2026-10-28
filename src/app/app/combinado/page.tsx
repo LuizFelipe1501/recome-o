@@ -95,8 +95,9 @@ export default function Combinado() {
           Fazer o combinado de {dias} dias
         </button>
         <Base>
-          Na autoexclusão, prazos longos têm menos recaída que os curtos, e acompanhamento depois do bloqueio aumenta a busca por
-          tratamento (Gainsbury, 2014). Limites fáceis de desfazer não protegeram ninguém num ensaio com 4.328 pessoas (Ivanova e
+          Em programas de autoexclusão, prazos longos têm menos recaída que os curtos, e acompanhamento depois do bloqueio aumenta a
+          busca por tratamento (Gainsbury, 2014). Com as apostas proibidas, a autoexclusão do gov.br não alcança os sites
+          clandestinos, e o combinado faz esse papel do seu lado. Limites fáceis de desfazer não protegeram ninguém num ensaio com 4.328 pessoas (Ivanova e
           colegas, 2019). Por isso desfazer aqui leva {ESPERA_HORAS} horas.
         </Base>
       </div>

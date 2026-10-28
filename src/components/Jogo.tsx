@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { Mascote, type Humor } from "./Mascote";
 import { useEstado } from "@/lib/estado";
 import { diasNaSemana, dinheiroPoupado, placar } from "@/lib/missoes";
-import { reacoesCarinho, sequencia } from "@/lib/falas";
+import { melhorSequencia, reacoesCarinho, sequencia } from "@/lib/falas";
 import { reais } from "@/lib/calculos";
 
 // ------------------------------------------------------------ recompensa
@@ -146,6 +146,7 @@ export function Hud({ fala, humor = "normal" }: { fala?: ReactNode; humor?: Humo
   if (!estado) return null;
   const p = placar(estado);
   const seq = estado.perfil.papel === "familiar" ? 0 : sequencia(estado);
+  const recorde = estado.perfil.papel === "familiar" ? 0 : melhorSequencia(estado);
   const desmaiado = humor === "desmaiado";
 
   const fazerCarinho = () => {
@@ -184,10 +185,12 @@ export function Hud({ fala, humor = "normal" }: { fala?: ReactNode; humor?: Humo
           <div className="flex flex-wrap items-center gap-2">
             <span className="pixel rounded-lg border-2 border-ardosia bg-sol px-2 py-0.5 text-xs text-ardosia">NÍVEL {p.numeroNivel}</span>
             <span className="truncate font-titulo text-lg font-extrabold">{p.nivel.nome}</span>
-            {seq > 0 && (
-              <span className="pixel inline-flex items-center gap-1 rounded-lg border-2 border-ardosia bg-coral-claro px-2 py-0.5 text-xs text-ardosia" title="Dias seguidos com check-in">
+            {(seq > 0 || recorde >= 2) && (
+              <span className="pixel inline-flex items-center gap-1 rounded-lg border-2 border-ardosia bg-coral-claro px-2 py-0.5 text-xs text-ardosia" title="Dias seguidos com check-in. O recorde fica guardado mesmo se a sequência parar.">
                 <DesenhoPixel desenho={["...X...", "..XX...", "..XXX..", ".XXXXX.", ".XX.XX.", "XX...XX", ".XXXXX."]} tamanho={14} cor="#d55e00" />
-                {seq} {seq === 1 ? "DIA" : "DIAS"} SEGUIDOS
+                {seq > 0 ? `${seq} ${seq === 1 ? "DIA" : "DIAS"} SEGUIDOS` : ""}
+                {seq > 0 && recorde > seq ? " · " : ""}
+                {recorde > seq ? `RECORDE ${recorde}` : ""}
               </span>
             )}
           </div>

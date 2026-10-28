@@ -60,14 +60,16 @@ const trilhaApostador: Missao[] = [
   {
     id: "autoexclusao",
     fase: "portas",
-    titulo: "Pedir autoexclusão",
-    descricao: "Pedir às casas de aposta que bloqueiem a sua conta.",
+    titulo: "Fechar as portas do site clandestino",
+    descricao: "Com as apostas proibidas, todo site que continua no ar é ilegal. Fechar o caminho até eles.",
     passos: [
-      "Entre na área de jogo responsável de cada casa em que você tem conta e peça a autoexclusão pelo maior prazo.",
-      "Instale um bloqueador de sites de aposta no celular.",
-      "Veja se o seu banco tem opção de bloquear pagamentos para apostas.",
+      "Instale um bloqueador de sites de aposta no celular e no computador.",
+      "Saia dos grupos de dicas e sinais no WhatsApp e no Telegram e deixe de seguir perfis que mandam link de aposta.",
+      "Apague aplicativos e links salvos. Veja se o seu banco tem opção de bloquear pagamentos para apostas.",
+      "Recebeu convite ou link de site de aposta? Denuncie no Fala.BR, o canal de denúncias do governo federal.",
     ],
-    porque: "A autoexclusão está ligada a menos aposta e menos prejuízo, e funciona melhor quando cobre todos os sites ao mesmo tempo (Gainsbury, 2014).",
+    porque:
+      "Fechar o acesso funciona melhor quando cobre todos os caminhos ao mesmo tempo (Gainsbury, 2014). Depois da proibição, a autoexclusão do gov.br não alcança os sites clandestinos, e bloqueio sem apoio protege pouco (Kraus e colegas, 2022). Por isso o bloqueio agora depende de você e de quem está do seu lado.",
     pontos: 50,
     compartilhavel: true,
   },

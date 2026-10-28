@@ -129,7 +129,11 @@ export function falaDoCaramelo(e: Estado, agora = new Date()): FalaCaramelo {
   const checkinHoje = e.checkins.find((c) => c.data === hoje());
 
   if (estaDesmaiado(e, agora)) {
-    return { texto: "O Caramelo desmaiou de saudade! Faz o check-in de hoje para acordar ele. Seu XP continua todo aqui.", humor: "desmaiado" };
+    const recorde = melhorSequencia(e);
+    return {
+      texto: `O Caramelo desmaiou de saudade! Faz o check-in de hoje para acordar ele. Seu XP${recorde >= 2 ? ` e seu recorde de ${recorde} dias seguidos continuam guardados` : " continua todo aqui"}. Recomeçar não apaga nada.`,
+      humor: "desmaiado",
+    };
   }
 
   if (checkinHoje) {
