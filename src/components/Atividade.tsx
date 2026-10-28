@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { atividades } from "@/lib/conteudo";
 import { useEstado } from "@/lib/estado";
 import { ordenarDividas, reais, restante } from "@/lib/calculos";
-import { Base, Escala, Ouvir } from "./ui";
+import { Base, Ditado, Escala, Ouvir, juntarTexto } from "./ui";
 
 export function Atividade({ id, aoConcluir }: { id: string; aoConcluir?: () => void }) {
   const a = atividades[id];
@@ -213,6 +213,7 @@ function Anotacao({ id, pergunta }: { id: string; pergunta: string }) {
           atualizar((s) => ({ ...s, anotacoes: { ...s.anotacoes, [id]: v } }));
         }}
       />
+      <Ditado aoTexto={(t) => atualizar((s) => ({ ...s, anotacoes: { ...s.anotacoes, [id]: juntarTexto(s.anotacoes[id] ?? "", t) } }))} />
       <p className="mt-1 text-sm text-ardosia-suave">Só você vê o que escreve aqui.</p>
     </div>
   );

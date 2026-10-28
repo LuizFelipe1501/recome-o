@@ -11,6 +11,9 @@ const depoisDeDeslize = [
   "Recuperar o que perdeu com outra aposta é a armadilha mais comum. Hoje, só não aposte.",
   "Errar não te leva de volta para o começo. Você já sabe mais do que sabia antes.",
   "Fala com você mesmo como falaria com um amigo que escorregou.",
+  "Cair faz parte de aprender a andar. Ninguém desiste de andar porque caiu.",
+  "A vergonha quer que você suma. O plano quer que você volte. Escuta o plano.",
+  "Hoje você pode ser gentil com você. Amanhã fica mais fácil recomeçar.",
 ];
 
 const vontadeAlta = [
@@ -18,6 +21,9 @@ const vontadeAlta = [
   "Você não precisa vencer a vontade para sempre. Só pelos próximos 15 minutos.",
   "Sentir vontade não é falhar. Obedecer a ela é que é opcional.",
   "Se apertar hoje, o botão Estou com vontade está ali. Já funcionou antes.",
+  "Respira fundo três vezes. A vontade é uma onda, e você sabe surfar.",
+  "A vontade mente: ela diz que dessa vez vai ser diferente. Não vai.",
+  "Manda mensagem para alguém agora. Vontade dividida fica menor.",
 ];
 
 const semanaBoa = [
@@ -25,6 +31,9 @@ const semanaBoa = [
   "Cada dia sem aposta deixa a próxima vontade um pouco mais fraca.",
   "Você está fazendo a coisa difícil. Vale reconhecer isso hoje.",
   "Constância vale mais que perfeição. E você está sendo constante.",
+  "Tem alguém em casa que já percebeu a diferença, mesmo sem falar.",
+  "Você está provando para você mesmo que dá. Essa prova ninguém tira.",
+  "O dinheiro que ficou no bolso esta semana tem nome: é seu.",
 ];
 
 const geral = [
@@ -40,6 +49,14 @@ const geral = [
   "O check-in de hoje leva um minuto e diz muito sobre o seu dia.",
   "Ninguém precisa ser perfeito para mudar. Precisa só continuar.",
   "Sua história não é a sua pior noite de aposta.",
+  "Você merece um dinheiro que dura até o fim do mês.",
+  "A sua família não precisa de um herói. Precisa de você presente.",
+  "Coragem não é não sentir vontade. É sentir e escolher diferente.",
+  "Cada real que não foi para a aposta é um tijolinho na sua casinha.",
+  "O futebol fica mais gostoso quando o coração bate pelo time, não pela aposta.",
+  "Você não está sozinho nessa. Milhões de brasileiros estão tentando o mesmo.",
+  "Seja paciente com você. Mudar leva tempo, e o tempo está a seu favor.",
+  "Hoje, escolha uma coisa pequena que te faça bem. Só uma.",
 ];
 
 const familiar = [
@@ -53,6 +70,9 @@ const familiar = [
   "Um programa juntos, sem aposta, mostra que a vida sem ela é boa.",
   "Você está aprendendo a apoiar sem se perder. Isso é raro.",
   "Pequenas ações de apoio, repetidas, mudam o clima de uma casa.",
+  "Seu cuidado aparece nos detalhes. Ele percebe, mesmo quando não diz.",
+  "Você também merece descanso. Apoiar não é carregar tudo sozinho.",
+  "Um abraço sem cobrança às vezes vale mais que uma conversa longa.",
 ];
 
 function dia(n: number) {

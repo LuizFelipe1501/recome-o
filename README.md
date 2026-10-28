@@ -1,4 +1,4 @@
-# Recomeço
+# NonBet
 
 Protótipo para o hackathon Rolê que Rende (BB Digital Week 2026), desafio "Além da Aposta: caminhos para recomeçar".
 

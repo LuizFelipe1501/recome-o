@@ -359,7 +359,7 @@ export const roteiroConversa = [
   {
     titulo: "Ofereça um próximo passo pequeno",
     texto:
-      "Em vez de exigir que pare hoje, proponha algo possível: conhecer o Recomeço, uma consulta pelo Meu SUS Digital, uma reunião dos Jogadores Anônimos.",
+      "Em vez de exigir que pare hoje, proponha algo possível: conhecer o NonBet, uma consulta pelo Meu SUS Digital, uma reunião dos Jogadores Anônimos.",
   },
   {
     titulo: "Se não der certo, tudo bem",

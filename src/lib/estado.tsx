@@ -196,6 +196,7 @@ export function ProvedorEstado({ children }: { children: ReactNode }) {
     raiz.dataset.fonte = p?.fonte ?? "normal";
     raiz.dataset.contraste = p?.contraste ?? "normal";
     raiz.dataset.movimento = p?.movimento ?? "normal";
+    raiz.dataset.daltonismo = p?.daltonismo ?? "nenhum";
   }, [estado?.prefs]);
 
   const pendente = useRef<Estado | null>(null);

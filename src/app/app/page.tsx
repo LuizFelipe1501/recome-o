@@ -12,6 +12,8 @@ import { FraseDoDia } from "@/components/FraseDoDia";
 import { CartaoDuplaHoje } from "@/components/Dupla";
 import { atividades, atividadesLivres } from "@/lib/conteudo";
 import { estaDesmaiado, pontosHabito, proximaMissao } from "@/lib/missoes";
+import { falaDoCaramelo } from "@/lib/falas";
+import { Medalhas } from "@/components/Medalhas";
 import { useEstado } from "@/lib/estado";
 import { diasEntre, diasSemApostarNoMes, hoje, ordenarDividas, progressoDividas, reais, restante } from "@/lib/calculos";
 import type { Checkin } from "@/lib/tipos";
@@ -21,11 +23,6 @@ export default function Hoje() {
   if (!estado) return null;
   if (estado.perfil.papel === "familiar") return <PainelFamiliar />;
   return <HojeApostador />;
-}
-
-function saudacao() {
-  const h = new Date().getHours();
-  return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
 }
 
 function HojeApostador() {
@@ -42,24 +39,34 @@ function HojeApostador() {
   const prox = proximaMissao(estado);
   const atividadeHoje = ordemAtividades.find((id) => !(estado.atividadesFeitas[id] ?? []).some((d) => d.slice(0, 10) === hoje())) ?? ordemAtividades[0];
   const fezAtividadeHoje = Object.values(estado.atividadesFeitas).some((l) => l.some((d) => d.slice(0, 10) === hoje()));
-  const desmaiado = estaDesmaiado(estado);
-  const humor: Humor = desmaiado ? "desmaiado" : checkinHoje?.apostou || (checkinHoje && checkinHoje.vontade >= 7) ? "preocupado" : checkinHoje ? "feliz" : "normal";
-
-  const fala = desmaiado
-    ? "O Caramelo desmaiou de saudade! Faz o check-in de hoje para acordar ele. Seu XP continua todo aqui."
-    : !checkinHoje
-    ? `${saudacao()}${estado.perfil.nome ? `, ${estado.perfil.nome}` : ""}! Dia ${dia} da nossa caminhada. Bora fazer o check-in?`
-    : checkinHoje.apostou
-      ? "Hoje teve aposta. Tudo bem, seu XP continua aqui. Amanhã a gente segue."
-      : checkinHoje.vontade >= 7
-        ? "Vontade alta hoje. Se apertar, o botão Estou com vontade está logo ali."
-        : `Check-in feito! Dia ${dia}. Que tal uma missão agora?`;
+  const { texto: fala, humor } = falaDoCaramelo(estado);
+  const porque = estado.trava.motivo || estado.anotacoes["meu-porque"];
 
   return (
     <div className="space-y-6 pt-4">
-      <Hud fala={fala} humor={humor} />
+      <Hud
+        fala={
+          <>
+            {fala}
+            {!checkinHoje && humor !== "desmaiado" && <span className="mt-1 block text-sm font-normal text-ardosia-suave">Dia {dia} da nossa caminhada. Bora fazer o check-in?</span>}
+          </>
+        }
+        humor={humor}
+      />
 
       <FraseDoDia />
+
+      {porque && (
+        <section className="flex items-center gap-3 rounded-2xl border-[3px] border-ardosia bg-white p-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border-[3px] border-ardosia bg-coral-claro text-telha" aria-hidden="true">
+            <IconePixel nome="coracao" />
+          </span>
+          <div className="min-w-0">
+            <p className="pixel text-[0.6rem] text-ardosia-suave">LEMBRA POR QUE VOCÊ COMEÇOU</p>
+            <p className="font-titulo text-lg font-bold leading-snug">“{porque}”</p>
+          </div>
+        </section>
+      )}
 
       {ultimaMsg && (
         <section className="rounded-2xl border-[3px] border-ardosia bg-sol-claro p-4">
@@ -99,6 +106,8 @@ function HojeApostador() {
           )}
         </section>
       </div>
+
+      <Medalhas />
 
       <CartaoDuplaHoje />
 
@@ -236,57 +245,57 @@ const perguntas: Pergunta[] = [
     campo: "humor",
     texto: "Como você está agora?",
     opcoes: [
-      { rotulo: "Muito mal", valor: 1, cor: "#f7b4bf", humor: "preocupado" },
-      { rotulo: "Mal", valor: 2, cor: "#fbd3b0", humor: "preocupado" },
-      { rotulo: "Mais ou menos", valor: 3, cor: "#fef6a8" },
-      { rotulo: "Bem", valor: 4, cor: "#c9f2dc", humor: "feliz" },
-      { rotulo: "Muito bem", valor: 5, cor: "#9fe6c4", humor: "feliz" },
+      { rotulo: "Muito mal", valor: 1, cor: "var(--escala-1)", humor: "triste" },
+      { rotulo: "Mal", valor: 2, cor: "var(--escala-2)", humor: "preocupado" },
+      { rotulo: "Mais ou menos", valor: 3, cor: "var(--escala-3)" },
+      { rotulo: "Bem", valor: 4, cor: "var(--escala-4)", humor: "feliz" },
+      { rotulo: "Muito bem", valor: 5, cor: "var(--escala-5)", humor: "animado" },
     ],
   },
   {
     campo: "vontade",
     texto: "E a vontade de apostar hoje?",
     opcoes: [
-      { rotulo: "Nenhuma", valor: 0, cor: "#9fe6c4", humor: "feliz" },
-      { rotulo: "Pouca", valor: 3, cor: "#c9f2dc" },
-      { rotulo: "Média", valor: 5, cor: "#fef6a8" },
-      { rotulo: "Forte", valor: 8, cor: "#fbd3b0", humor: "preocupado" },
-      { rotulo: "Muito forte", valor: 10, cor: "#f7b4bf", humor: "preocupado" },
+      { rotulo: "Nenhuma", valor: 0, cor: "var(--escala-5)", humor: "feliz" },
+      { rotulo: "Pouca", valor: 3, cor: "var(--escala-4)" },
+      { rotulo: "Média", valor: 5, cor: "var(--escala-3)" },
+      { rotulo: "Forte", valor: 8, cor: "var(--escala-2)", humor: "preocupado" },
+      { rotulo: "Muito forte", valor: 10, cor: "var(--escala-1)", humor: "preocupado" },
     ],
   },
   {
     campo: "estresse",
     texto: "Quanto estresse teve hoje?",
     opcoes: [
-      { rotulo: "Tranquilo", valor: 2, cor: "#9fe6c4" },
-      { rotulo: "Normal", valor: 5, cor: "#fef6a8" },
-      { rotulo: "No limite", valor: 9, cor: "#f7b4bf", humor: "preocupado" },
+      { rotulo: "Tranquilo", valor: 2, cor: "var(--escala-5)" },
+      { rotulo: "Normal", valor: 5, cor: "var(--escala-3)" },
+      { rotulo: "No limite", valor: 9, cor: "var(--escala-1)", humor: "triste" },
     ],
   },
   {
     campo: "sono",
     texto: "Como você dormiu?",
     opcoes: [
-      { rotulo: "Mal", valor: 2, cor: "#fbd3b0", humor: "dormindo" },
-      { rotulo: "Mais ou menos", valor: 3, cor: "#fef6a8" },
-      { rotulo: "Bem", valor: 5, cor: "#9fe6c4", humor: "feliz" },
+      { rotulo: "Mal", valor: 2, cor: "var(--escala-2)", humor: "dormindo" },
+      { rotulo: "Mais ou menos", valor: 3, cor: "var(--escala-3)" },
+      { rotulo: "Bem", valor: 5, cor: "var(--escala-5)", humor: "feliz" },
     ],
   },
   {
     campo: "confianca",
     texto: "Quanta confiança você tem para não apostar hoje?",
     opcoes: [
-      { rotulo: "Pouca", valor: 2, cor: "#fbd3b0" },
-      { rotulo: "Média", valor: 5, cor: "#fef6a8" },
-      { rotulo: "Muita", valor: 9, cor: "#9fe6c4", humor: "feliz" },
+      { rotulo: "Pouca", valor: 2, cor: "var(--escala-2)" },
+      { rotulo: "Média", valor: 5, cor: "var(--escala-3)" },
+      { rotulo: "Muita", valor: 9, cor: "var(--escala-5)", humor: "animado" },
     ],
   },
   {
     campo: "apostou",
     texto: "Teve aposta hoje? Pode falar a verdade, ninguém perde XP.",
     opcoes: [
-      { rotulo: "Não apostei", valor: false, cor: "#9fe6c4", humor: "feliz" },
-      { rotulo: "Apostei", valor: true, cor: "#e7ebff" },
+      { rotulo: "Não apostei", valor: false, cor: "var(--escala-5)", humor: "emocionado" },
+      { rotulo: "Apostei", valor: true, cor: "var(--ceu)", humor: "apaixonado" },
     ],
   },
 ];
@@ -425,6 +434,7 @@ function CheckinJogo() {
               className="surgir min-h-16 rounded-xl border-[3px] border-ardosia px-2 py-3 font-bold leading-tight shadow-[0_4px_0_var(--ardosia)] transition-transform active:translate-y-1 hover:-translate-y-0.5 last:odd:col-span-2 sm:last:odd:col-span-1"
               style={{ background: o.cor }}
             >
+              <SimboloEscala cor={o.cor} />
               {o.rotulo}
             </button>
           ))}
@@ -445,6 +455,7 @@ const DESENHOS: Record<string, string[]> = {
   raio: ["....XX.", "...XX..", "..XX...", ".XXXXX.", "...XX..", "..XX...", ".XX...."],
   bandeira: ["XXXXXX.", "XXXXX..", "XXXXXX.", "X......", "X......", "X......", "X......"],
   estrela: ["...X...", "..XXX..", "XXXXXXX", ".XXXXX.", "..XXX..", ".XX.XX.", "XX...XX"],
+  coracao: [".......", ".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."],
 };
 
 function IconePixel({ nome }: { nome: string }) {
@@ -523,5 +534,23 @@ function CartaoDesenrola() {
         </Link>
       </div>
     </section>
+  );
+}
+
+// Símbolo que acompanha a cor nas respostas, para quem tem daltonismo:
+// triângulo para baixo é ruim, círculo é meio, triângulo para cima é bom.
+function SimboloEscala({ cor }: { cor: string }) {
+  const n = Number(cor.match(/escala-(\d)/)?.[1] ?? 0);
+  if (!n) return null;
+  const forma = n <= 2 ? "M4 6h16L12 19Z" : n === 3 ? "M12 5a7 7 0 1 1 0 14a7 7 0 0 1 0-14Z" : "M4 18h16L12 5Z";
+  const vezes = n === 1 || n === 5 ? 2 : 1;
+  return (
+    <span className="simbolo-escala mb-1 w-full justify-center" aria-hidden="true">
+      {Array.from({ length: vezes }).map((_, i) => (
+        <svg key={i} width="16" height="16" viewBox="0 0 24 24">
+          <path d={forma} fill="var(--ardosia)" />
+        </svg>
+      ))}
+    </span>
   );
 }

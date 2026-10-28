@@ -1,4 +1,4 @@
-// Service worker do Recomeço: recebe os lembretes e abre o app no lugar certo.
+// Service worker do NonBet: recebe os lembretes e abre o app no lugar certo.
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 

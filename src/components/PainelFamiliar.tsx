@@ -114,7 +114,7 @@ export function PainelFamiliar() {
             <p className="text-sm text-ardosia-suave">Você vê só o que {resumo.nome} escolheu compartilhar.</p>
             <dl className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-2xl bg-ceu p-3">
-                <dt className="text-sm">Dias no Recomeço</dt>
+                <dt className="text-sm">Dias no NonBet</dt>
                 <dd className="font-titulo text-3xl font-extrabold">{resumo.diasNoRecomeco}</dd>
               </div>
               {resumo.diasSemApostarNoMes !== undefined && (
@@ -149,7 +149,7 @@ export function PainelFamiliar() {
           <>
             <h2 className="text-xl font-bold">Acompanhar alguém</h2>
             <p className="mt-1">
-              Se a pessoa usa o Recomeço, peça para ela gerar um código na aba Família. Você vê só o que ela escolher mostrar.
+              Se a pessoa usa o NonBet, peça para ela gerar um código na aba Família. Você vê só o que ela escolher mostrar.
             </p>
             <div className="mt-3 flex gap-2">
               <label htmlFor="codigo-familia" className="sr-only">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEstado } from "@/lib/estado";
+import { Ditado, juntarTexto } from "./ui";
 
 const sugestoes = [
   "Tô do seu lado.",
@@ -59,6 +60,7 @@ export function Mensagens({ titulo, vazio }: { titulo: string; vazio: string }) 
           Enviar
         </button>
       </form>
+      <Ditado aoTexto={(t) => setTexto((x) => juntarTexto(x, t).slice(0, 500))} rotulo="Falar a mensagem" />
     </section>
   );
 }

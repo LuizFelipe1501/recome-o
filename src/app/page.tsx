@@ -30,7 +30,7 @@ export default function Inicio() {
           <div className="flex items-center justify-between">
             <p className="flex items-center gap-2 font-titulo text-xl font-extrabold">
               <Mascote tamanho={40} animacao="parado" rotulo="" />
-              Recomeço
+              NonBet
             </p>
             <Link href="/entrar" className="rounded-xl border-[3px] border-ardosia bg-white px-3 py-1.5 text-sm font-bold">
               Entrar
@@ -97,7 +97,7 @@ export default function Inicio() {
       <section className="border-y-[3px] border-ardosia bg-white">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-2">
           <div>
-            <h2 className="text-2xl font-extrabold">O que o Recomeço não é</h2>
+            <h2 className="text-2xl font-extrabold">O que o NonBet não é</h2>
             <p className="mt-3">
               Não substitui atendimento profissional. É um apoio para usar junto com o SUS, os Jogadores Anônimos e quem cuida de
               você. Em todas as telas há um caminho direto para ajuda de verdade.

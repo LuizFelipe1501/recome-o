@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Base, Titulo } from "@/components/ui";
+import { Base, Ditado, Titulo, juntarTexto } from "@/components/ui";
 import { CartaoAcao } from "@/components/Jogo";
 import { useEstado } from "@/lib/estado";
 
@@ -54,7 +54,8 @@ export default function Combinado() {
             Por que estou fazendo isso
           </label>
           <textarea id="motivo" rows={3} className="campo" value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Ex.: para voltar a pagar o aluguel em dia e não mentir mais para minha mãe" />
-          <p className="mt-1 text-sm text-ardosia-suave">Essa frase aparece se você tentar desfazer o combinado.</p>
+          <Ditado aoTexto={(t) => setMotivo((m) => juntarTexto(m, t))} />
+          <p className="mt-1 text-sm text-ardosia-suave">Essa frase aparece se você tentar desfazer o combinado e também na sua tela Hoje.</p>
         </div>
 
         <div>

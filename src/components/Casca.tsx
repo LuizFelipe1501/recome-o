@@ -92,7 +92,7 @@ export function Casca({ children }: { children: ReactNode }) {
     <ProvedorRecompensa>
       <ProvedorDupla>
       <ResumoDiario />
-      <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
+      <div className={`min-h-dvh ${noInicio ? "" : "lg:grid lg:grid-cols-[17rem_1fr]"}`}>
         <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
           Pular para o conteúdo
         </a>
@@ -102,7 +102,7 @@ export function Casca({ children }: { children: ReactNode }) {
           <aside className="sticky top-0 hidden h-dvh flex-col border-r-[3px] border-ardosia bg-sol px-4 py-6 lg:flex">
             <Link href="/app" className="flex items-center gap-2">
               <Mascote tamanho={52} animacao="parado" />
-              <span className="font-titulo text-2xl font-extrabold text-ardosia">Recomeço</span>
+              <span className="font-titulo text-2xl font-extrabold text-ardosia">NonBet</span>
             </Link>
             <nav aria-label="Seções" className="mt-8 flex-1">
               <ul className="space-y-2">
@@ -143,7 +143,7 @@ export function Casca({ children }: { children: ReactNode }) {
           <header className="flex items-center justify-between border-b-[3px] border-ardosia bg-sol px-4 py-2.5 lg:hidden">
             <Link href="/app" className="flex items-center gap-1.5">
               <Mascote tamanho={34} animacao="parado" />
-              <span className="font-titulo text-xl font-extrabold text-ardosia">Recomeço</span>
+              <span className="font-titulo text-xl font-extrabold text-ardosia">NonBet</span>
             </Link>
             <div className="flex items-center gap-2">
               {modo === "demo" && <span className="pixel rounded-md border-2 border-ardosia bg-white px-2 py-0.5 text-[0.65rem]">DEMO</span>}
@@ -153,7 +153,7 @@ export function Casca({ children }: { children: ReactNode }) {
             </div>
           </header>
 
-          <main id="conteudo" className={`mx-auto w-full max-w-lg flex-1 px-4 sm:px-5 lg:max-w-4xl lg:px-10 lg:pb-16 lg:pt-6 ${noInicio ? "pb-10" : "pb-44"}`}>
+          <main id="conteudo" className={`mx-auto w-full flex-1 px-4 sm:px-5 lg:px-10 lg:pb-16 lg:pt-6 ${noInicio ? "max-w-5xl pb-10" : "max-w-lg pb-44 lg:max-w-4xl"}`}>
             {children}
           </main>
         </div>

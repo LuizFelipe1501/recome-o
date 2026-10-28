@@ -5,11 +5,12 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { Mascote, type Humor } from "./Mascote";
 import { useEstado } from "@/lib/estado";
 import { diasNaSemana, dinheiroPoupado, placar } from "@/lib/missoes";
+import { reacoesCarinho, sequencia } from "@/lib/falas";
 import { reais } from "@/lib/calculos";
 
 // ------------------------------------------------------------ recompensa
 
-type Premio = { pontos: number; titulo: string; texto?: string; acordou?: boolean; id: number };
+type Premio = { pontos: number; titulo: string; texto?: string; acordou?: boolean; rotulo?: string; humor?: Humor; desenho?: string[]; id: number };
 
 const Ctx = createContext<{ recompensar: (p: Omit<Premio, "id">) => void }>({ recompensar: () => {} });
 
@@ -23,11 +24,20 @@ export function ProvedorRecompensa({ children }: { children: ReactNode }) {
   const [subiu, setSubiu] = useState<string | null>(null);
   const nivelAntes = useRef<number | null>(null);
 
+  const fila = useRef<Premio[]>([]);
+  const naTela = useRef(false);
   const recompensar = useCallback(
     (p: Omit<Premio, "id">) => {
+      const novo = { ...p, id: Date.now() + Math.random() };
+      // Se já tem um prêmio na tela, o novo espera a vez
+      if (naTela.current) {
+        fila.current.push(novo);
+        return;
+      }
+      naTela.current = true;
       if (estado) nivelAntes.current = placar(estado).numeroNivel;
       setSubiu(null);
-      setPremio({ ...p, id: Date.now() });
+      setPremio(novo);
     },
     [estado],
   );
@@ -39,7 +49,12 @@ export function ProvedorRecompensa({ children }: { children: ReactNode }) {
     nivelAntes.current = null;
   }, [estado, premio]);
 
-  const fechar = () => setPremio(null);
+  const fechar = () => {
+    const proximo = fila.current.shift() ?? null;
+    naTela.current = Boolean(proximo);
+    setSubiu(null);
+    setPremio(proximo);
+  };
 
   return (
     <Ctx.Provider value={{ recompensar }}>
@@ -53,14 +68,27 @@ export function ProvedorRecompensa({ children }: { children: ReactNode }) {
           >
             <Raios />
             <div className="relative">
-              {premio.acordou ? <CarameloAcordando /> : <Mascote tamanho={140} humor="feliz" animacao="pula" className="mx-auto" />}
-              <p className="pixel mt-2 text-sm text-mare-escura">{subiu ? "Subiu de nível!" : "Conquista"}</p>
+              {premio.acordou ? (
+                <CarameloAcordando />
+              ) : premio.desenho ? (
+                <div className="relative mx-auto h-[140px] w-[140px]">
+                  <Mascote tamanho={140} humor={premio.humor ?? "emocionado"} animacao="pula" />
+                  <span className="surgir absolute -right-4 bottom-2 grid h-16 w-16 place-items-center rounded-2xl border-[3px] border-ardosia bg-white shadow-[0_4px_0_var(--ardosia)]">
+                    <DesenhoPixel desenho={premio.desenho} tamanho={40} />
+                  </span>
+                </div>
+              ) : (
+                <Mascote tamanho={140} humor={premio.humor ?? "feliz"} animacao="pula" className="mx-auto" />
+              )}
+              <p className="pixel mt-2 text-sm text-mare-escura">{subiu ? "Subiu de nível!" : premio.rotulo ?? "Conquista"}</p>
               <h2 id="titulo-premio" className="mt-1 text-2xl font-extrabold">
                 {subiu ?? premio.titulo}
               </h2>
               {subiu && <p className="font-bold">{premio.titulo}</p>}
               {premio.texto && <p className="mt-1">{premio.texto}</p>}
-              <p className="pixel mt-4 inline-block rounded-xl border-[3px] border-ardosia bg-white px-4 py-2 text-2xl text-mare-escura">+{premio.pontos} XP</p>
+              {premio.pontos > 0 && (
+                <p className="pixel mt-4 inline-block rounded-xl border-[3px] border-ardosia bg-white px-4 py-2 text-2xl text-mare-escura">+{premio.pontos} XP</p>
+              )}
               <button type="button" className="botao-jogo botao-jogo-azul mt-6 w-full text-lg" onClick={fechar} autoFocus>
                 Continuar
               </button>
@@ -109,9 +137,28 @@ function Raios() {
 // ------------------------------------------------------------ HUD
 
 export function Hud({ fala, humor = "normal" }: { fala?: ReactNode; humor?: Humor }) {
-  const { estado } = useEstado();
+  const { estado, atualizar } = useEstado();
+  const [carinho, setCarinho] = useState<{ n: number; texto: string; humor: Humor } | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
   if (!estado) return null;
   const p = placar(estado);
+  const seq = estado.perfil.papel === "familiar" ? 0 : sequencia(estado);
+  const desmaiado = humor === "desmaiado";
+
+  const fazerCarinho = () => {
+    if (desmaiado) return;
+    const total = (estado.carinhos ?? 0) + 1;
+    const r = reacoesCarinho[(total - 1) % reacoesCarinho.length];
+    atualizar((e) => ({ ...e, carinhos: (e.carinhos ?? 0) + 1 }));
+    setCarinho({ n: total, texto: r.texto, humor: r.humor });
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => setCarinho(null), 3500);
+  };
+  const humorAtual = carinho?.humor ?? humor;
+  const falaAtual = carinho?.texto ?? fala;
   const semana = diasNaSemana(estado);
   const familiar = estado.perfil.papel === "familiar";
   const poupado = familiar ? 0 : dinheiroPoupado(estado);
@@ -120,11 +167,29 @@ export function Hud({ fala, humor = "normal" }: { fala?: ReactNode; humor?: Humo
     <section className="relative overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-mare text-white shadow-[0_6px_0_var(--ardosia)]" aria-label="Seu progresso">
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-mare-escura" aria-hidden="true" />
       <div className="relative grid grid-cols-[auto_1fr] items-end gap-3 p-4 sm:gap-5 sm:p-5">
-        <Mascote tamanho={104} humor={humor} className="-mb-1 drop-shadow-[0_4px_0_rgba(0,0,0,0.25)] sm:h-32 sm:w-32" />
+        <button
+          type="button"
+          onClick={fazerCarinho}
+          className="relative -mb-1 rounded-2xl"
+          aria-label={desmaiado ? "Caramelo desmaiado. Faça o check-in para acordar ele." : "Fazer carinho no Caramelo"}
+        >
+          <Mascote key={carinho?.n ?? 0} tamanho={104} humor={humorAtual} className={`drop-shadow-[0_4px_0_rgba(0,0,0,0.25)] sm:h-32 sm:w-32 ${carinho ? "mascote-carinho" : ""}`} />
+          {carinho && (
+            <svg key={`c${carinho.n}`} className="coracao-subindo pixelado pointer-events-none absolute left-1/2 top-0" width="28" height="28" viewBox="0 0 7 7" aria-hidden="true">
+              <DesenhoPixelRects desenho={[".......", ".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."]} cor="#e8304a" />
+            </svg>
+          )}
+        </button>
         <div className="min-w-0 pb-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="pixel rounded-lg border-2 border-ardosia bg-sol px-2 py-0.5 text-xs text-ardosia">NÍVEL {p.numeroNivel}</span>
             <span className="truncate font-titulo text-lg font-extrabold">{p.nivel.nome}</span>
+            {seq > 0 && (
+              <span className="pixel inline-flex items-center gap-1 rounded-lg border-2 border-ardosia bg-coral-claro px-2 py-0.5 text-xs text-ardosia" title="Dias seguidos com check-in">
+                <DesenhoPixel desenho={["...X...", "..XX...", "..XXX..", ".XXXXX.", ".XX.XX.", "XX...XX", ".XXXXX."]} tamanho={14} cor="#d55e00" />
+                {seq} {seq === 1 ? "DIA" : "DIAS"} SEGUIDOS
+              </span>
+            )}
           </div>
           <div
             className="mt-2 h-5 overflow-hidden rounded-lg border-[3px] border-ardosia bg-white/25"
@@ -141,10 +206,12 @@ export function Hud({ fala, humor = "normal" }: { fala?: ReactNode; humor?: Humo
           </p>
         </div>
       </div>
-      {fala && (
-        <div className="relative mx-4 mb-4 rounded-2xl border-[3px] border-ardosia bg-white px-4 py-3 font-bold text-ardosia">
+      {falaAtual && (
+        <div className="relative mx-4 mb-4 rounded-2xl border-[3px] border-ardosia bg-white px-4 py-3 font-bold text-ardosia" aria-live="polite">
           <span className="absolute -top-[11px] left-10 h-0 w-0 border-x-[9px] border-b-[9px] border-x-transparent border-b-ardosia" aria-hidden="true" />
-          {fala}
+          <span key={carinho?.n ?? "fala"} className="surgir block">
+            {falaAtual}
+          </span>
         </div>
       )}
       <div className="relative grid grid-cols-3 border-t-[3px] border-ardosia bg-white text-ardosia">
@@ -223,5 +290,25 @@ export function LinkJogo({ href, children, azul }: { href: string; children: Rea
     <Link href={href} className={`botao-jogo w-full ${azul ? "botao-jogo-azul" : ""}`}>
       {children}
     </Link>
+  );
+}
+
+// ------------------------------------------------------------ desenhos em pixel 7x7
+
+function DesenhoPixelRects({ desenho, cor = "currentColor" }: { desenho: string[]; cor?: string }) {
+  return (
+    <>
+      {desenho.flatMap((linha, y) =>
+        linha.split("").map((c, x) => (c === "X" ? <rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={cor} /> : null)),
+      )}
+    </>
+  );
+}
+
+export function DesenhoPixel({ desenho, tamanho = 26, cor = "currentColor", className = "" }: { desenho: string[]; tamanho?: number; cor?: string; className?: string }) {
+  return (
+    <svg width={tamanho} height={tamanho} viewBox="0 0 7 7" className={`pixelado ${className}`} aria-hidden="true">
+      <DesenhoPixelRects desenho={desenho} cor={cor} />
+    </svg>
   );
 }

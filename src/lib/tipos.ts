@@ -87,7 +87,11 @@ export type Estado = {
     contraste: "normal" | "alto";
     movimento: "normal" | "reduzido";
     lembrete: boolean;
+    daltonismo: "nenhum" | "vermelho-verde" | "azul-amarelo";
+    legendas: boolean;
   };
+  carinhos: number; // vezes que a pessoa fez carinho no Caramelo
+  medalhasVistas: string[];
 };
 
 export const estadoInicial = (papel: Papel = "apostador", nome = ""): Estado => ({
@@ -121,7 +125,9 @@ export const estadoInicial = (papel: Papel = "apostador", nome = ""): Estado => 
     meuCheckin: [],
     acoes: [],
   },
-  prefs: { fonte: "normal", contraste: "normal", movimento: "normal", lembrete: false },
+  prefs: { fonte: "normal", contraste: "normal", movimento: "normal", lembrete: false, daltonismo: "nenhum", legendas: true },
+  carinhos: 0,
+  medalhasVistas: [],
 });
 
 export type ResumoCompartilhado = {

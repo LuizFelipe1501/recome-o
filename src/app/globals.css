@@ -338,3 +338,77 @@ p {
   100% { transform: none; }
 }
 .mascote-levantando { transform-origin: 50% 50%; animation: levantar 0.75s cubic-bezier(.3,1.4,.6,1) both; }
+/* Novas emoções do Caramelo */
+@keyframes murchar {
+  0%, 100% { transform: translateY(2%) rotate(0deg); }
+  50% { transform: translateY(4%) rotate(-2deg); }
+}
+.mascote-triste { transform-origin: 50% 100%; animation: murchar 2.6s ease-in-out infinite; }
+@keyframes flutuar-coracao {
+  0% { transform: translateY(2px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-3px); opacity: 0; }
+}
+.coracao-flutuando { animation: flutuar-coracao 1.6s ease-out infinite; }
+@keyframes piscar-brilho { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.brilhinhos { animation: piscar-brilho 0.6s steps(2) infinite; }
+@keyframes pontinhos { 0% { opacity: 0.2; } 50% { opacity: 1; } 100% { opacity: 0.2; } }
+.pensando rect { animation: pontinhos 1.5s steps(3) infinite; }
+.pensando rect:nth-child(2) { animation-delay: 0.25s; }
+.pensando rect:nth-child(3) { animation-delay: 0.5s; }
+@keyframes carinho {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.08, 0.92); }
+  60% { transform: scale(0.96, 1.05); }
+  100% { transform: scale(1); }
+}
+.mascote-carinho { animation: carinho 0.5s ease-out; }
+@keyframes subir-coracao {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -48px) scale(1.2); }
+}
+.coracao-subindo { animation: subir-coracao 1.1s ease-out forwards; }
+
+/* Escala de respostas: do pior (1) ao melhor (5) */
+:root {
+  --escala-1: #f7b4bf;
+  --escala-2: #fbd3b0;
+  --escala-3: #fef6a8;
+  --escala-4: #c9f2dc;
+  --escala-5: #9fe6c4;
+}
+.simbolo-escala { display: none; }
+
+/* Daltonismo vermelho-verde (protanopia e deuteranopia): paleta Okabe-Ito,
+   ruim fica laranja-avermelhado e bom fica azul, que se distinguem bem. */
+:root[data-daltonismo="vermelho-verde"] {
+  --menta: #00785a;
+  --menta-claro: #cfe9f7;
+  --telha: #b84a00;
+  --coral: #c77f00;
+  --coral-claro: #fbe6c2;
+  --escala-1: #f5b48a;
+  --escala-2: #fbd7b4;
+  --escala-3: #f3f1d2;
+  --escala-4: #c6e2f7;
+  --escala-5: #8cc4ee;
+}
+/* Daltonismo azul-amarelo (tritanopia): ruim fica rosa, bom fica verde-água,
+   e o meio vira cinza neutro para não confundir com o rosa. */
+:root[data-daltonismo="azul-amarelo"] {
+  --menta: #00796b;
+  --menta-claro: #d2f1ec;
+  --telha: #c4123a;
+  --escala-1: #f5a3b5;
+  --escala-2: #f9cfd8;
+  --escala-3: #e4e4e4;
+  --escala-4: #bfeee6;
+  --escala-5: #86d9cc;
+}
+:root[data-daltonismo="vermelho-verde"] .simbolo-escala,
+:root[data-daltonismo="azul-amarelo"] .simbolo-escala,
+:root[data-simbolos="sim"] .simbolo-escala { display: inline-flex; }
+
+/* Legenda da leitura em voz alta */
+.legenda-palavra { background: var(--sol); color: var(--ardosia); border-radius: 4px; box-shadow: 0 0 0 2px var(--sol); }

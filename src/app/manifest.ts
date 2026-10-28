@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Recomeço",
-    short_name: "Recomeço",
+    name: "NonBet",
+    short_name: "NonBet",
     description: "Apoio para quem quer parar de apostar e para quem está do lado.",
     start_url: "/app",
     scope: "/",

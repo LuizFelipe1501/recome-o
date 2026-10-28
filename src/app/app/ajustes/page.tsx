@@ -45,9 +45,49 @@ export default function Ajustes() {
           descricao="Tira as animações"
           aoMudar={() => setPref("movimento", p.movimento === "reduzido" ? "normal" : "reduzido")}
         />
+        <Interruptor
+          ativo={p.legendas ?? true}
+          rotulo="Legenda ao ouvir"
+          descricao="Mostra o texto e destaca cada palavra enquanto o app lê em voz alta"
+          aoMudar={() => setPref("legendas", !(p.legendas ?? true))}
+        />
+
+        <fieldset className="pt-3">
+          <legend className="font-bold">Cores para daltonismo</legend>
+          <p className="text-sm text-ardosia-suave">
+            Troca as cores que podem se confundir e coloca símbolos nas respostas: ▼ para ruim, ● para meio e ▲ para bom.
+          </p>
+          <div className="mt-2 space-y-2" role="radiogroup" aria-label="Cores para daltonismo">
+            {(
+              [
+                ["nenhum", "Cores padrão", "Sem ajuste", ["#f7b4bf", "#fef6a8", "#9fe6c4"]],
+                ["vermelho-verde", "Vermelho e verde", "Protanopia e deuteranopia, os tipos mais comuns", ["#f5b48a", "#f3f1d2", "#8cc4ee"]],
+                ["azul-amarelo", "Azul e amarelo", "Tritanopia", ["#f5a3b5", "#e4e4e4", "#86d9cc"]],
+              ] as const
+            ).map(([v, t, d, cores]) => {
+              const marcado = (p.daltonismo ?? "nenhum") === v;
+              return (
+                <button key={v} type="button" role="radio" aria-checked={marcado} className="opcao flex items-center justify-between gap-3" onClick={() => setPref("daltonismo", v)}>
+                  <span>
+                    <strong>{t}</strong>
+                    <span className="block text-sm text-ardosia-suave">{d}</span>
+                  </span>
+                  <span className="flex shrink-0 gap-1" aria-hidden="true">
+                    {cores.map((c, i) => (
+                      <span key={c} className="grid h-7 w-7 place-items-center rounded-md border-2 border-ardosia text-xs font-bold" style={{ background: c }}>
+                        {v === "nenhum" ? "" : ["▼", "●", "▲"][i]}
+                      </span>
+                    ))}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
         <p className="pt-2 text-sm text-ardosia-suave">
-          A fonte do app foi feita para pessoas com baixa visão. Os textos principais têm o botão Ouvir, que lê em voz alta com a
-          voz do celular.
+          A fonte do app foi feita para pessoas com baixa visão. Os textos principais têm o botão Ouvir, que lê em voz alta com a voz
+          do celular. Nos campos de texto, o botão Falar em vez de digitar transcreve o que você diz, sem precisar escrever.
         </p>
       </section>
 
@@ -119,7 +159,7 @@ export default function Ajustes() {
       <section className="text-sm text-ardosia-suave">
         <h2 className="text-base font-bold text-ardosia">Sobre</h2>
         <p className="mt-1">
-          Protótipo do Recomeço para o hackathon Rolê que Rende, BB Digital Week 2026. O conteúdo se baseia em terapia
+          Protótipo do NonBet para o hackathon Rolê que Rende, BB Digital Week 2026. O conteúdo se baseia em terapia
           cognitivo-comportamental e entrevista motivacional, as abordagens com mais evidência para o jogo problemático, e em
           estudos como GamblingLess, Help on Demand, e-Estesia e LENAD III. Não substitui atendimento profissional.
         </p>

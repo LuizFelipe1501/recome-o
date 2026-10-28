@@ -395,7 +395,7 @@ const trilhaFamiliar: Missao[] = [
     id: "f-convite",
     fase: "convidar",
     titulo: "Convidar para ajuda",
-    descricao: "Sugerir o Recomeço, o SUS ou os JA numa hora boa.",
+    descricao: "Sugerir o NonBet, o SUS ou os JA numa hora boa.",
     passos: [
       "Espere uma janela: depois de uma perda, de uma conversa sincera ou quando a pessoa reclamar da aposta.",
       "Ofereça uma opção concreta e se ofereça para ir junto.",
@@ -447,6 +447,7 @@ export const pontosHabito = {
   pagamento: 25,
   deposito: 15,
   acaoFamiliar: 10,
+  boasVindas: 30, // primeira conversa com o Caramelo, uma vez só
 };
 
 // Ações rápidas do dia para quem apoia (cada uma vale pontos uma vez por dia)
@@ -460,13 +461,14 @@ export const acoesFamiliar = [
 export function placar(e: Estado) {
   const trilha = trilhaDe(e.perfil.papel);
   const familiar = e.perfil.papel === "familiar";
-  const habitos = familiar
+  const largada = e.perfil.onboardingFeito ? pontosHabito.boasVindas : 0;
+  const habitos = largada + (familiar
     ? e.familia.meuCheckin.length * pontosHabito.checkin + e.familia.acoes.length * pontosHabito.acaoFamiliar
     : e.checkins.length * pontosHabito.checkin +
       Object.values(e.atividadesFeitas).reduce((s, l) => s + l.length, 0) * pontosHabito.atividade +
       e.crises.filter((c) => c.resultado === "passou" || c.resultado === "diminuiu").length * pontosHabito.vontadeAtravessada +
       e.pagamentos.length * pontosHabito.pagamento +
-      e.reserva.depositos.length * pontosHabito.deposito;
+      e.reserva.depositos.length * pontosHabito.deposito);
   // Missões da dupla que não têm par na trilha individual contam aqui (já em dobro).
   // As que têm par marcam a missão individual como feita em dupla.
   const papel = e.perfil.papel;
@@ -497,7 +499,7 @@ export const niveis = [
   { nome: "Pé firme", minimo: 150 },
   { nome: "Rumo certo", minimo: 400 },
   { nome: "Virada", minimo: 800 },
-  { nome: "Recomeço de verdade", minimo: 1400 },
+  { nome: "Vida nova", minimo: 1400 },
 ];
 
 export const niveisFamiliar = [

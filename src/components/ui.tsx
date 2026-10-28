@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEstado } from "@/lib/estado";
 
 // Lê um texto em voz alta com a voz do próprio aparelho.
+// Com a legenda ligada (padrão), mostra o texto e destaca a palavra que está sendo falada.
 export function Ouvir({ texto, rotulo = "Ouvir" }: { texto: string; rotulo?: string }) {
+  const { estado } = useEstado();
   const [falando, setFalando] = useState(false);
   const [disponivel, setDisponivel] = useState(false);
+  const [posicao, setPosicao] = useState(-1);
+  const legendas = estado?.prefs.legendas ?? true;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -27,22 +32,160 @@ export function Ouvir({ texto, rotulo = "Ouvir" }: { texto: string; rotulo?: str
     const u = new SpeechSynthesisUtterance(texto);
     u.lang = "pt-BR";
     u.rate = 0.95;
-    u.onend = () => setFalando(false);
+    u.onboundary = (ev) => setPosicao(ev.charIndex);
+    u.onend = () => {
+      setFalando(false);
+      setPosicao(-1);
+    };
     s.cancel();
+    setPosicao(0);
     s.speak(u);
     setFalando(true);
   };
 
+  // Divide em palavras guardando onde cada uma começa, para achar a palavra falada
+  const palavras: { p: string; ini: number }[] = [];
+  const re = /\S+/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(texto))) palavras.push({ p: m[0], ini: m.index });
+  const atual = palavras.findLastIndex((w) => w.ini <= posicao);
+
   return (
-    <button
-      type="button"
-      onClick={alternar}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold text-mare-escura hover:bg-ceu"
-      aria-pressed={falando}
-    >
-      <IconeSom />
-      {falando ? "Parar" : rotulo}
-    </button>
+    <div>
+      <button
+        type="button"
+        onClick={alternar}
+        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold text-mare-escura hover:bg-ceu"
+        aria-pressed={falando}
+      >
+        <IconeSom />
+        {falando ? "Parar" : rotulo}
+      </button>
+      {falando && legendas && (
+        <p className="surgir mt-2 rounded-xl border-[3px] border-ardosia bg-white p-3 text-base leading-relaxed" aria-hidden="true">
+          <span className="pixel mb-1 block text-[0.6rem] text-ardosia-suave">LEGENDA</span>
+          {palavras.map((w, i) => (
+            <span key={i} className={i === atual ? "legenda-palavra" : undefined}>
+              {w.p}{" "}
+            </span>
+          ))}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------ ditado por voz
+
+type Reconhecimento = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  start: () => void;
+  stop: () => void;
+  onresult: ((ev: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => void) | null;
+  onerror: ((ev: { error: string }) => void) | null;
+  onend: (() => void) | null;
+};
+
+function criarReconhecimento(): Reconhecimento | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as { SpeechRecognition?: new () => Reconhecimento; webkitSpeechRecognition?: new () => Reconhecimento };
+  const C = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+  return C ? new C() : null;
+}
+
+// Junta o que foi falado ao que já estava escrito
+export function juntarTexto(atual: string, novo: string) {
+  const a = atual.trim();
+  const n = novo.trim();
+  if (!a) return n.charAt(0).toUpperCase() + n.slice(1);
+  return `${a} ${n}`;
+}
+
+// Transcrição automática: a pessoa fala e o texto aparece no campo.
+// Usa o reconhecimento de voz do próprio navegador (Chrome, Edge, Safari).
+export function Ditado({ aoTexto, rotulo = "Falar em vez de digitar" }: { aoTexto: (t: string) => void; rotulo?: string }) {
+  const [disponivel, setDisponivel] = useState(false);
+  const [ouvindo, setOuvindo] = useState(false);
+  const [parcial, setParcial] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const rec = useRef<Reconhecimento | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDisponivel(criarReconhecimento() !== null);
+    return () => rec.current?.stop();
+  }, []);
+
+  if (!disponivel) return null;
+
+  const alternar = () => {
+    if (ouvindo) {
+      rec.current?.stop();
+      return;
+    }
+    const r = criarReconhecimento();
+    if (!r) return;
+    r.lang = "pt-BR";
+    r.interimResults = true;
+    r.continuous = false;
+    r.onresult = (ev) => {
+      let final = "";
+      let meio = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const res = ev.results[i];
+        if (res.isFinal) final += res[0].transcript;
+        else meio += res[0].transcript;
+      }
+      setParcial(meio);
+      if (final) aoTexto(final);
+    };
+    r.onerror = (ev) => {
+      setErro(
+        ev.error === "not-allowed" || ev.error === "service-not-allowed"
+          ? "Libere o microfone para este site nas configurações do navegador."
+          : ev.error === "no-speech"
+            ? "Não ouvi nada. Tente de novo, mais perto do microfone."
+            : "Não consegui entender. Tente de novo.",
+      );
+    };
+    r.onend = () => {
+      setOuvindo(false);
+      setParcial("");
+    };
+    rec.current = r;
+    setErro(null);
+    setOuvindo(true);
+    r.start();
+  };
+
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={alternar}
+        aria-pressed={ouvindo}
+        className={`inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-sm font-bold ${
+          ouvindo ? "border-telha bg-white text-telha" : "border-transparent text-mare-escura hover:bg-ceu"
+        }`}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" />
+          <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        {ouvindo ? "Ouvindo... toque para parar" : rotulo}
+      </button>
+      <p className="sr-only" aria-live="polite">
+        {ouvindo ? "Microfone ligado. Pode falar." : ""}
+      </p>
+      {ouvindo && parcial && <p className="mt-1 text-sm italic text-ardosia-suave">{parcial}</p>}
+      {erro && (
+        <p role="alert" className="mt-1 text-sm font-bold text-telha">
+          {erro}
+        </p>
+      )}
+    </div>
   );
 }
 

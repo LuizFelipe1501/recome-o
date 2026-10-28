@@ -90,7 +90,7 @@ export default function Familia() {
         </div>
         <div className="mt-4 rounded-2xl bg-ceu p-4 text-sm">
           <p className="font-bold">Prévia do que aparece</p>
-          <p>Dias no Recomeço: {previa.diasNoRecomeco}</p>
+          <p>Dias no NonBet: {previa.diasNoRecomeco}</p>
           {previa.faseAtual && <p>Fase: {previa.faseAtual}</p>}
           {previa.diasSemApostarNoMes !== undefined && <p>Dias sem apostar no mês: {previa.diasSemApostarNoMes}</p>}
           {previa.humorRecente !== undefined && <p>Humor recente registrado</p>}

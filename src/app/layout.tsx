@@ -33,9 +33,9 @@ const pixel = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Recomeço",
-  applicationName: "Recomeço",
-  appleWebApp: { capable: true, title: "Recomeço", statusBarStyle: "default" },
+  title: "NonBet",
+  applicationName: "NonBet",
+  appleWebApp: { capable: true, title: "NonBet", statusBarStyle: "default" },
   icons: { icon: "/icone-192.png", apple: "/apple-touch-icon.png" },
   description:
     "Apoio para quem quer parar ou diminuir as apostas e para quem está do lado. Botão para os momentos de vontade, plano para as dívidas e espaço para a família.",

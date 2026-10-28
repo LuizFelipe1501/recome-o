@@ -16,7 +16,7 @@ export default function Apoio() {
         sub={
           familiar
             ? "Você também pode e deve buscar ajuda. Quase todos estes serviços atendem familiares."
-            : "O Recomeço é um apoio para usar junto com estes serviços, não no lugar deles. Programas com algum apoio humano funcionam melhor do que os feitos sozinho."
+            : "O NonBet é um apoio para usar junto com estes serviços, não no lugar deles. Programas com algum apoio humano funcionam melhor do que os feitos sozinho."
         }
       >
         Onde buscar ajuda

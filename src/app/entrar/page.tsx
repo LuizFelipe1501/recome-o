@@ -66,7 +66,7 @@ function Formulario() {
         <div>
           <Link href="/" className="flex items-center gap-2">
             <Mascote tamanho={44} animacao="parado" />
-            <span className="font-titulo text-2xl font-extrabold">Recomeço</span>
+            <span className="font-titulo text-2xl font-extrabold">NonBet</span>
           </Link>
           <div className="mt-8 hidden lg:block">
             <Fala humor="feliz" tamanho={150}>
