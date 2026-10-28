@@ -147,8 +147,15 @@ export function Casca({ children }: { children: ReactNode }) {
             </Link>
             <div className="flex items-center gap-2">
               {modo === "demo" && <span className="pixel rounded-md border-2 border-ardosia bg-white px-2 py-0.5 text-[0.65rem]">DEMO</span>}
-              <Link href="/app/ajustes" className="rounded-lg px-2 py-1.5 text-sm font-bold hover:bg-white/50" aria-label="Ajustes">
+              <Link
+                href="/app/ajustes"
+                aria-current={ativa("/app/ajustes") ? "page" : undefined}
+                className={`flex min-h-11 items-center gap-1.5 rounded-xl border-[3px] border-ardosia px-3 font-bold shadow-[0_3px_0_var(--ardosia)] active:translate-y-0.5 ${
+                  ativa("/app/ajustes") ? "bg-sol-claro" : "bg-white"
+                }`}
+              >
                 <Icone nome="ajustes" />
+                Ajustes
               </Link>
             </div>
           </header>
