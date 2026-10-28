@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Hud, useRecompensa } from "@/components/Jogo";
 import { Mascote } from "@/components/Mascote";
+import { Medalhas } from "@/components/Medalhas";
+import { MiniGrafico } from "@/components/ui";
 import { useEstado } from "@/lib/estado";
 import { missoesDupla } from "@/lib/duplaDados";
-import { hoje } from "@/lib/calculos";
+import { diasSemApostarNoMes, hoje } from "@/lib/calculos";
 import { estaDesmaiado, fasesDe, missaoFeita, pontosHabito, trilhaDe, type Missao } from "@/lib/missoes";
 
 // Deslocamento horizontal dos nós, em zigue-zague
@@ -35,6 +37,7 @@ export default function Trilha() {
   };
 
   let indiceGlobal = 0;
+  const ultimos = [...estado.checkins].sort((a, b) => a.data.localeCompare(b.data)).slice(-14);
 
   return (
     <div className="space-y-6 pt-4">
@@ -115,6 +118,17 @@ export default function Trilha() {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-6">
+          {!familiar && <Medalhas />}
+          {!familiar && ultimos.length >= 2 && (
+            <section className="rounded-2xl border-[3px] border-ardosia bg-white p-4">
+              <h2 className="font-extrabold">Sua vontade nos últimos dias</h2>
+              <MiniGrafico pontos={ultimos.map((c) => ({ data: c.data, valor: c.vontade }))} rotulo="Nível de vontade de apostar em cada check-in, de 0 a 10" />
+              <p className="text-sm">
+                Quanto mais tempo longe das apostas, mais fraca a vontade costuma ficar. Neste mês, {diasSemApostarNoMes(estado)} dias registrados sem
+                apostar.
+              </p>
+            </section>
+          )}
           <div className="rounded-2xl border-[3px] border-ardosia bg-coral-claro p-4">
             <div className="flex items-center gap-2">
               <Dupla />

@@ -18,13 +18,14 @@ export function planosDoDia(planos: PlanoRotina[], dia = new Date().getDay()) {
 }
 
 // Cartão da tela Hoje: os momentos de risco de hoje e o que a pessoa combinou fazer
-export function CartaoRotinaHoje() {
+export function CartaoRotinaHoje({ soComHorarioHoje = false }: { soComHorarioHoje?: boolean }) {
   const { estado, atualizar } = useEstado();
   const recompensar = useRecompensa();
   if (!estado || estado.perfil.papel === "familiar") return null;
   const rotina = estado.rotina ?? { planos: [], feitos: {} };
   const deHoje = planosDoDia(rotina.planos);
   const feitosHoje = rotina.feitos[hoje()] ?? [];
+  if (soComHorarioHoje && deHoje.length === 0) return null;
 
   const marcar = (p: PlanoRotina) => {
     if (feitosHoje.includes(p.id)) return;

@@ -5,13 +5,10 @@ import { useEstado } from "@/lib/estado";
 import { medalhas } from "@/lib/medalhas";
 import { DesenhoPixel, useRecompensa } from "./Jogo";
 
-// Estante de medalhas da tela Hoje. Cada medalha bloqueada diz o que fazer para ganhar.
-// A medalha nova aparece numa comemoração, uma vez só.
-export function Medalhas() {
+// Fica no app inteiro: quando a pessoa ganha uma medalha nova, comemora uma vez só.
+export function VigiaMedalhas() {
   const { estado, atualizar } = useEstado();
   const recompensar = useRecompensa();
-  const [aberta, setAberta] = useState<string | null>(null);
-
   const ganhas = estado ? medalhas.filter((m) => m.ganhou(estado)) : [];
   const idsGanhas = ganhas.map((m) => m.id).join(",");
 
@@ -26,13 +23,22 @@ export function Medalhas() {
       pontos: 0,
       rotulo: novas.length > 1 ? `${novas.length} medalhas novas` : "Medalha nova",
       titulo: m.titulo,
-      texto: novas.length > 1 ? `E mais ${novas.length - 1}. Veja todas na sua estante.` : "Guardei na sua estante. Ninguém tira ela de você.",
+      texto: novas.length > 1 ? `E mais ${novas.length - 1}. Veja todas na estante, na Trilha.` : "Guardei na sua estante, na Trilha. Ninguém tira ela de você.",
       desenho: m.desenho,
       humor: "emocionado",
     });
     // Só reage quando muda a lista de medalhas ganhas
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idsGanhas]);
+
+  return null;
+}
+
+// Estante de medalhas da Trilha. Cada medalha bloqueada diz o que fazer para ganhar.
+export function Medalhas() {
+  const { estado } = useEstado();
+  const [aberta, setAberta] = useState<string | null>(null);
+  const ganhas = estado ? medalhas.filter((m) => m.ganhou(estado)) : [];
 
   if (!estado) return null;
   const detalhe = medalhas.find((m) => m.id === aberta);
@@ -48,7 +54,7 @@ export function Medalhas() {
         </p>
       </div>
       <p className="mt-1 text-sm text-ardosia-suave">Cada medalha vem de um esforço seu. Toque numa para ver como ganhar.</p>
-      <ul className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6">
+      <ul className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-4">
         {medalhas.map((m) => {
           const ok = ganhas.includes(m);
           return (

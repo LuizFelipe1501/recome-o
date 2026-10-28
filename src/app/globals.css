@@ -441,3 +441,7 @@ p {
 
 /* Legenda da leitura em voz alta */
 .legenda-palavra { background: var(--sol); color: var(--ardosia); border-radius: 4px; box-shadow: 0 0 0 2px var(--sol); }
+
+/* Barra que rola para o lado sem mostrar a barra de rolagem */
+.sem-barra { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.sem-barra::-webkit-scrollbar { display: none; }

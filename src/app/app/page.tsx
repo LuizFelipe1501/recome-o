@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Atividade } from "@/components/Atividade";
-import { MiniGrafico } from "@/components/ui";
-import { BarraVida, Chefao, corChefao } from "@/components/Chefao";
 import { Hud, useRecompensa } from "@/components/Jogo";
 import { Fala, Mascote, type Humor } from "@/components/Mascote";
 import { PainelFamiliar } from "@/components/PainelFamiliar";
@@ -13,10 +11,11 @@ import { CartaoDuplaHoje } from "@/components/Dupla";
 import { atividades, atividadesLivres } from "@/lib/conteudo";
 import { estaDesmaiado, pontosHabito, proximaMissao } from "@/lib/missoes";
 import { falaDoCaramelo } from "@/lib/falas";
-import { Medalhas } from "@/components/Medalhas";
-import { CartaoRotinaHoje } from "@/components/Rotina";
+import { CartaoRotinaHoje, planosDoDia } from "@/components/Rotina";
+import { Icone } from "@/components/Casca";
+import { useDupla } from "@/lib/dupla";
 import { useEstado } from "@/lib/estado";
-import { diasEntre, diasSemApostarNoMes, hoje, ordenarDividas, progressoDividas, reais, restante } from "@/lib/calculos";
+import { diasEntre, hoje, reais, restante } from "@/lib/calculos";
 import type { Checkin } from "@/lib/tipos";
 
 export default function Hoje() {
@@ -33,9 +32,7 @@ function HojeApostador() {
 
   const dia = diasEntre(estado.perfil.inicio);
   const checkinHoje = estado.checkins.find((c) => c.data === hoje());
-  const ultimos = [...estado.checkins].sort((a, b) => a.data.localeCompare(b.data)).slice(-14);
   const recebidas = mensagens.filter((m) => m.autor_id !== usuarioId);
-  const ultimaMsg = recebidas[recebidas.length - 1];
   const ordemAtividades = [...estado.favoritas, ...atividadesLivres.filter((a) => !estado.favoritas.includes(a))];
   const prox = proximaMissao(estado);
   const atividadeHoje = ordemAtividades.find((id) => !(estado.atividadesFeitas[id] ?? []).some((d) => d.slice(0, 10) === hoje())) ?? ordemAtividades[0];
@@ -55,9 +52,8 @@ function HojeApostador() {
         humor={humor}
       />
 
-      <FraseDoDia />
-
-      {porque && (
+      {/* Um recado só: o de quem torce por você, o seu porquê ou a frase do dia */}
+      {porque && recebidas.length === 0 ? (
         <section className="flex items-center gap-3 rounded-2xl border-[3px] border-ardosia bg-white p-4">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border-[3px] border-ardosia bg-coral-claro text-telha" aria-hidden="true">
             <IconePixel nome="coracao" />
@@ -67,13 +63,8 @@ function HojeApostador() {
             <p className="font-titulo text-lg font-bold leading-snug">“{porque}”</p>
           </div>
         </section>
-      )}
-
-      {ultimaMsg && (
-        <section className="rounded-2xl border-[3px] border-ardosia bg-sol-claro p-4">
-          <p className="pixel text-xs">MENSAGEM DE QUEM TORCE POR VOCÊ</p>
-          <p className="mt-1 font-titulo text-lg">“{ultimaMsg.texto}”</p>
-        </section>
+      ) : (
+        <FraseDoDia />
       )}
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
@@ -91,8 +82,13 @@ function HojeApostador() {
             pontos={pontosHabito.atividade}
             cor="var(--menta)"
             icone="raio"
-            aoTocar={() => setAberta(atividadeHoje)}
+            aoTocar={() => setAberta(aberta === atividadeHoje ? null : atividadeHoje)}
           />
+          {aberta && atividades[aberta] && (
+            <div className="rounded-2xl border-[3px] border-ardosia bg-white p-1">
+              <Atividade id={aberta} />
+            </div>
+          )}
           {prox && (
             <MissaoDia
               feita={false}
@@ -108,76 +104,95 @@ function HojeApostador() {
         </section>
       </div>
 
-      <CartaoRotinaHoje />
+      <CartaoRotinaHoje soComHorarioHoje />
 
-      <Medalhas />
+      <Atalhos />
 
-      <CartaoDuplaHoje />
-
-      <CartaoDesenrola />
-
-      <section aria-labelledby="titulo-atividades">
-        <h2 id="titulo-atividades" className="text-2xl font-extrabold">
-          Caixa de ferramentas
-        </h2>
-        <p className="mt-1 text-ardosia-suave">Atividades curtas. Marque as que funcionam com a estrela para elas virem primeiro.</p>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {ordemAtividades.map((id) => {
-            const a = atividades[id];
-            if (!a) return null;
-            const feitas = estado.atividadesFeitas[id]?.length ?? 0;
-            return (
-              <button
-                key={id}
-                type="button"
-                aria-expanded={aberta === id}
-                onClick={() => setAberta(aberta === id ? null : id)}
-                className={`flex min-h-28 flex-col justify-between rounded-2xl border-[3px] border-ardosia p-3 text-left shadow-[0_5px_0_var(--ardosia)] transition-transform active:translate-y-1 ${
-                  aberta === id ? "bg-sol" : "bg-white hover:-translate-y-0.5"
-                }`}
-              >
-                <span className="font-bold leading-tight">
-                  {estado.favoritas.includes(id) && <span aria-label="Favorita">★ </span>}
-                  {a.titulo}
-                </span>
-                <span className="pixel mt-2 text-[0.65rem] text-ardosia-suave">
-                  {a.minutos} MIN{feitas ? ` · ${feitas}X` : ""}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        {aberta && atividades[aberta] && (
-          <div className="mt-4 rounded-2xl border-[3px] border-ardosia bg-white p-1">
-            <Atividade id={aberta} />
-          </div>
-        )}
-      </section>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {ultimos.length >= 2 && (
-          <section className="rounded-2xl border-[3px] border-ardosia bg-white p-5">
-            <h2 className="text-xl font-bold">Sua vontade nos últimos dias</h2>
-            <MiniGrafico pontos={ultimos.map((c) => ({ data: c.data, valor: c.vontade }))} rotulo="Nível de vontade de apostar em cada check-in, de 0 a 10" />
-            <p className="text-sm">
-              Quanto mais tempo longe das apostas, mais fraca a vontade costuma ficar. Neste mês, {diasSemApostarNoMes(estado)} dias
-              registrados sem apostar.
-            </p>
-          </section>
-        )}
-        <section className="rounded-2xl border-[3px] border-ardosia bg-white p-5">
-          <h2 className="text-xl font-bold">Meu combinado</h2>
-          <p className="mt-1">
-            {estado.trava.ativa
-              ? `Você fez um combinado de ${estado.trava.dias} dias. Ele está de pé.`
-              : "Um compromisso seu, com prazo e com alguém sabendo. Desfazer não é instantâneo, e isso é de propósito."}
-          </p>
-          <Link href="/app/combinado" className="botao-jogo botao-jogo-azul mt-4 w-full">
-            {estado.trava.ativa ? "Ver meu combinado" : "Fazer meu combinado"}
-          </Link>
-        </section>
-      </div>
+      <CartaoDuplaHoje soComDupla />
     </div>
+  );
+}
+
+// Atalhos para as funcionalidades, cada um com o estado de agora
+function Atalhos() {
+  const { estado } = useEstado();
+  const { ativa, parceiro } = useDupla();
+  if (!estado) return null;
+
+  const deHoje = planosDoDia(estado.rotina?.planos ?? []).length;
+  const totalDividas = estado.dividas.reduce((s, d) => s + restante(d), 0);
+  const nAtividades = atividadesLivres.length;
+  const fezHoje = Object.values(estado.atividadesFeitas).some((l) => l.some((d) => d.slice(0, 10) === hoje()));
+
+  const itens = [
+    {
+      href: "/app/rotina",
+      titulo: "Minha rotina",
+      estado: (estado.rotina?.planos ?? []).length === 0 ? "Montar agenda da hora de risco" : deHoje ? `${deHoje} ${deHoje === 1 ? "horário" : "horários"} hoje` : "Hoje está livre",
+      icone: "relogio",
+      fundo: "bg-menta-claro",
+    },
+    {
+      href: "/app/dividas",
+      titulo: "Desenrola",
+      estado: estado.dividas.length === 0 ? "Colocar dívidas no papel" : totalDividas > 0 ? `Falta ${reais(totalDividas)}` : "Chefões derrotados!",
+      icone: "carteira",
+      fundo: "bg-sol-claro",
+    },
+    {
+      href: "/app/ferramentas",
+      titulo: "Ferramentas",
+      estado: fezHoje ? "Já usou hoje ✓" : `${nAtividades} atividades curtas`,
+      icone: "caixa",
+      fundo: "bg-ceu",
+    },
+    {
+      href: "/app/dupla",
+      titulo: "Dupla",
+      estado: ativa ? `Com ${parceiro.split(" ")[0]}` : "Chamar alguém de confiança",
+      icone: "pessoas",
+      fundo: "bg-coral-claro",
+    },
+    {
+      href: "/app/combinado",
+      titulo: "Meu combinado",
+      estado: estado.trava.ativa ? `${estado.trava.dias} dias, de pé` : "Fazer um compromisso",
+      icone: "aperto",
+      fundo: "bg-sol-claro",
+    },
+    {
+      href: "/app/apoio",
+      titulo: "Apoio",
+      estado: "CVV 188, CAPS e JA",
+      icone: "mao",
+      fundo: "bg-ceu",
+    },
+  ];
+
+  return (
+    <section aria-labelledby="titulo-atalhos" className="space-y-3">
+      <h2 id="titulo-atalhos" className="text-2xl font-extrabold">
+        Tudo do NonBet
+      </h2>
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {itens.map((i) => (
+          <li key={i.href}>
+            <Link
+              href={i.href}
+              className="flex h-full min-h-[7.5rem] flex-col justify-between gap-2 rounded-2xl border-[3px] border-ardosia bg-white p-3 shadow-[0_5px_0_var(--ardosia)] transition-transform hover:-translate-y-0.5 active:translate-y-1"
+            >
+              <span className={`grid h-11 w-11 place-items-center rounded-xl border-[3px] border-ardosia text-ardosia ${i.fundo}`}>
+                <Icone nome={i.icone} />
+              </span>
+              <span>
+                <span className="block font-extrabold leading-tight">{i.titulo}</span>
+                <span className="block text-sm leading-snug text-ardosia-suave">{i.estado}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -468,75 +483,6 @@ function IconePixel({ nome }: { nome: string }) {
         linha.split("").map((c, x) => (c === "X" ? <rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill="currentColor" /> : null)),
       )}
     </svg>
-  );
-}
-
-// Desenrola direto na tela inicial: o chefão da vez e a reserva
-function CartaoDesenrola() {
-  const { estado } = useEstado();
-  if (!estado) return null;
-  const ativas = ordenarDividas(estado.dividas, estado.estrategia);
-  const alvo = ativas[0];
-  const total = estado.dividas.reduce((s, d) => s + restante(d), 0);
-  const derrotados = estado.dividas.filter((d) => d.valorTotal > 0 && restante(d) === 0).length;
-  const r = estado.reserva;
-  const pctReserva = r.meta ? Math.min(100, Math.round((r.guardado / r.meta) * 100)) : 0;
-
-  return (
-    <section aria-labelledby="titulo-desenrola-hoje" className="overflow-hidden rounded-[1.75rem] border-[3px] border-ardosia bg-white shadow-[0_5px_0_var(--ardosia)]">
-      <div className="flex items-center justify-between gap-3 bg-ardosia px-5 py-3 text-white">
-        <div>
-          <p className="pixel text-[0.65rem] text-sol">DESENROLA</p>
-          <h2 id="titulo-desenrola-hoje" className="text-xl font-extrabold">
-            Desenrolando sua vida
-          </h2>
-        </div>
-        {estado.dividas.length > 0 && (
-          <p className="text-right text-sm font-bold">
-            {derrotados}/{estado.dividas.length} chefões
-            <span className="block text-white/80">falta {reais(total)}</span>
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-4 p-5 sm:grid-cols-2">
-        {alvo ? (
-          <div className="flex items-center gap-3">
-            <Chefao categoria={alvo.categoria} tamanho={64} className="mascote-idle shrink-0" />
-            <div className="min-w-0 flex-1">
-              <p className="pixel text-[0.6rem] text-ardosia-suave">ALVO ATUAL</p>
-              <p className="truncate font-extrabold">{alvo.credor}</p>
-              <BarraVida restante={restante(alvo)} total={alvo.valorTotal} cor={corChefao[alvo.categoria]} />
-              <p className="mt-1 text-xs">
-                Vida {reais(restante(alvo))} · {progressoDividas(estado.dividas)}% de tudo já pago
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <p className="font-bold">{estado.dividas.length ? "Todos os chefões derrotados!" : "Ainda não tem dívida no papel."}</p>
-            <p className="text-sm text-ardosia-suave">
-              {estado.dividas.length ? "Agora o foco é a reserva." : "Anotar tira o peso da cabeça e vale +40 XP na trilha."}
-            </p>
-          </div>
-        )}
-        <div className="rounded-xl bg-menta-claro p-3">
-          <p className="pixel text-[0.6rem] text-ardosia-suave">CASINHA DO CARAMELO</p>
-          <p className="font-extrabold">
-            {reais(r.guardado)} <span className="text-sm font-bold">de {reais(r.meta)}</span>
-          </p>
-          <div className="mt-1 h-3 overflow-hidden rounded border-2 border-ardosia bg-white">
-            <div className="h-full bg-menta transition-[width] duration-700" style={{ width: `${pctReserva}%` }} />
-          </div>
-          <p className="mt-1 truncate text-xs">{r.objetivo}</p>
-        </div>
-      </div>
-      <div className="px-5 pb-5">
-        <Link href="/app/dividas" className="botao-jogo w-full">
-          {alvo ? "Registrar um pagamento" : estado.dividas.length ? "Guardar na reserva" : "Colocar dívidas no papel"}
-        </Link>
-      </div>
-    </section>
   );
 }
 

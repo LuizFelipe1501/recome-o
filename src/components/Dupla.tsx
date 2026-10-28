@@ -140,10 +140,10 @@ export function CartaoMissaoDupla({ m, indice, destaque }: { m: MissaoDupla; ind
 }
 
 // Cartão compacto para a tela Hoje
-export function CartaoDuplaHoje() {
+export function CartaoDuplaHoje({ soComDupla = false }: { soComDupla?: boolean }) {
   const { estado } = useEstado();
   const { ativa, pendente, parceiro, feitas } = useDupla();
-  if (!estado) return null;
+  if (!estado || (soComDupla && !ativa)) return null;
   const nomeCurto = parceiro.split(" ")[0];
 
   const chamada = !ativa

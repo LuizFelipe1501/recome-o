@@ -2,19 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useEstado } from "@/lib/estado";
 import { Mascote } from "./Mascote";
 import { ProvedorRecompensa } from "./Jogo";
 import { ResumoDiario } from "./ResumoDiario";
 import { ProvedorDupla } from "@/lib/dupla";
+import { VigiaMedalhas } from "./Medalhas";
 
+// Todas as seções do app. No celular a barra de baixo rola para o lado.
 const abasApostador = [
   { href: "/app", rotulo: "Hoje", icone: "sol" },
   { href: "/app/trilha", rotulo: "Trilha", icone: "trilha" },
-  { href: "/app/dupla", rotulo: "Dupla", icone: "pessoas" },
+  { href: "/app/rotina", rotulo: "Rotina", icone: "relogio" },
   { href: "/app/dividas", rotulo: "Desenrola", icone: "carteira" },
+  { href: "/app/ferramentas", rotulo: "Ferramentas", icone: "caixa" },
+  { href: "/app/dupla", rotulo: "Dupla", icone: "pessoas" },
+  { href: "/app/combinado", rotulo: "Combinado", icone: "aperto" },
   { href: "/app/apoio", rotulo: "Apoio", icone: "mao" },
+  { href: "/app/ajustes", rotulo: "Ajustes", icone: "ajustes" },
 ] as const;
 
 const abasFamiliar = [
@@ -23,9 +29,10 @@ const abasFamiliar = [
   { href: "/app/trilha", rotulo: "Trilha", icone: "trilha" },
   { href: "/app/conversa", rotulo: "Conversar", icone: "balao" },
   { href: "/app/apoio", rotulo: "Apoio", icone: "mao" },
+  { href: "/app/ajustes", rotulo: "Ajustes", icone: "ajustes" },
 ] as const;
 
-function Icone({ nome }: { nome: string }) {
+export function Icone({ nome }: { nome: string }) {
   const p = { stroke: "currentColor", strokeWidth: 2, fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
@@ -63,6 +70,18 @@ function Icone({ nome }: { nome: string }) {
           <path d="M12 7v5l3 2" {...p} />
         </>
       )}
+      {nome === "caixa" && (
+        <>
+          <rect x="3" y="8" width="18" height="12" rx="2" {...p} />
+          <path d="M9 8V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V8M3 13h18M10 13v2h4v-2" {...p} />
+        </>
+      )}
+      {nome === "aperto" && (
+        <>
+          <path d="M2 11l4-4 4 2 3-2 3 1 6 4" {...p} />
+          <path d="M6 7v7l4 4c.8.8 2 .8 2.8 0l5.7-5.7M10 11l2.5 2.5M12.5 9.5l3 3" {...p} />
+        </>
+      )}
       {nome === "ajustes" && (
         <>
           <circle cx="12" cy="12" r="3" {...p} />
@@ -81,6 +100,16 @@ export function Casca({ children }: { children: ReactNode }) {
   const naCrise = caminho.startsWith("/app/crise");
   const noInicio = caminho.startsWith("/app/comecar");
   const ativa = (href: string) => (href === "/app" ? caminho === "/app" : caminho.startsWith(href));
+  const barra = useRef<HTMLUListElement>(null);
+
+  // Mantém a aba atual visível na barra de baixo, que rola para o lado
+  useEffect(() => {
+    const ul = barra.current;
+    const atual = ul?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (!ul || !atual) return;
+    const alvo = atual.offsetLeft - ul.clientWidth / 2 + atual.offsetWidth / 2;
+    ul.scrollTo({ left: Math.max(0, alvo), behavior: "smooth" });
+  }, [caminho, familiar]);
 
   const botaoVontade = (
     <Link
@@ -98,6 +127,7 @@ export function Casca({ children }: { children: ReactNode }) {
     <ProvedorRecompensa>
       <ProvedorDupla>
       <ResumoDiario />
+      {estado && !familiar && !noInicio && <VigiaMedalhas />}
       <div className={`min-h-dvh ${noInicio ? "" : "lg:grid lg:grid-cols-[17rem_1fr]"}`}>
         <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
           Pular para o conteúdo
@@ -126,32 +156,6 @@ export function Casca({ children }: { children: ReactNode }) {
                     </Link>
                   </li>
                 ))}
-                {!familiar && (
-                  <li>
-                    <Link
-                      href="/app/rotina"
-                      aria-current={ativa("/app/rotina") ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-xl border-[3px] px-3 py-2.5 font-bold ${
-                        ativa("/app/rotina") ? "border-ardosia bg-white shadow-[0_4px_0_var(--ardosia)]" : "border-transparent hover:bg-white/50"
-                      }`}
-                    >
-                      <Icone nome="relogio" />
-                      Minha rotina
-                    </Link>
-                  </li>
-                )}
-                <li>
-                  <Link
-                    href="/app/ajustes"
-                    aria-current={ativa("/app/ajustes") ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-xl border-[3px] px-3 py-2.5 font-bold ${
-                      ativa("/app/ajustes") ? "border-ardosia bg-white shadow-[0_4px_0_var(--ardosia)]" : "border-transparent hover:bg-white/50"
-                    }`}
-                  >
-                    <Icone nome="ajustes" />
-                    Ajustes
-                  </Link>
-                </li>
               </ul>
             </nav>
             {modo === "demo" && <p className="pixel mb-3 text-center text-xs">MODO DEMONSTRAÇÃO</p>}
@@ -189,10 +193,10 @@ export function Casca({ children }: { children: ReactNode }) {
         {!noInicio && (
           <div className="fixed inset-x-0 bottom-0 z-30 lg:hidden">
             {!naCrise && !familiar && <div className="mx-auto mb-3 max-w-lg px-4">{botaoVontade}</div>}
-            <nav aria-label="Seções" className="border-t-[3px] border-ardosia bg-white pb-[env(safe-area-inset-bottom)]">
-              <ul className="mx-auto flex max-w-lg justify-around">
+            <nav aria-label="Seções" className="relative border-t-[3px] border-ardosia bg-white pb-[env(safe-area-inset-bottom)]">
+              <ul ref={barra} className="sem-barra mx-auto flex max-w-lg snap-x overflow-x-auto px-1">
                 {abas.map((a) => (
-                  <li key={a.href} className="flex-1">
+                  <li key={a.href} className="w-[4.6rem] shrink-0 snap-start">
                     <Link
                       href={a.href}
                       aria-current={ativa(a.href) ? "page" : undefined}
@@ -206,6 +210,8 @@ export function Casca({ children }: { children: ReactNode }) {
                   </li>
                 ))}
               </ul>
+              {/* Sombra na borda direita: sinal de que dá para arrastar */}
+              <span className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent" aria-hidden="true" />
             </nav>
           </div>
         )}
