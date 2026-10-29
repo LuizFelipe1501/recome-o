@@ -445,3 +445,10 @@ p {
 /* Barra que rola para o lado sem mostrar a barra de rolagem */
 .sem-barra { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .sem-barra::-webkit-scrollbar { display: none; }
+
+/* Bloco que a leitura de tela está lendo agora */
+[data-lendo] {
+  border-radius: 10px;
+  box-shadow: 0 0 0 4px var(--sol), 0 0 0 7px var(--ardosia);
+  scroll-margin: 10rem 0;
+}

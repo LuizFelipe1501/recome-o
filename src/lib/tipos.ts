@@ -99,6 +99,9 @@ export type Estado = {
     lembrete: boolean;
     daltonismo: "nenhum" | "vermelho-verde" | "azul-amarelo";
     legendas: boolean;
+    leitorTela: boolean; // mostra o botão "Ler a tela" em todas as telas
+    velocidadeVoz: number; // 0.7 a 1.4
+    voz: string; // voiceURI escolhida; vazio usa a primeira voz em português
   };
   rotina: { planos: PlanoRotina[]; feitos: Record<string, string[]> }; // feitos por data AAAA-MM-DD
   carinhos: number; // vezes que a pessoa fez carinho no Caramelo
@@ -136,7 +139,7 @@ export const estadoInicial = (papel: Papel = "apostador", nome = ""): Estado => 
     meuCheckin: [],
     acoes: [],
   },
-  prefs: { fonte: "normal", contraste: "normal", movimento: "normal", lembrete: false, daltonismo: "nenhum", legendas: true },
+  prefs: { fonte: "normal", contraste: "normal", movimento: "normal", lembrete: false, daltonismo: "nenhum", legendas: true, leitorTela: false, velocidadeVoz: 1, voz: "" },
   rotina: { planos: [], feitos: {} },
   carinhos: 0,
   medalhasVistas: [],

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useEstado } from "@/lib/estado";
+import { falar, pararFala, vozSuportada } from "@/lib/voz";
 
 // Lê um texto em voz alta com a voz do próprio aparelho.
 // Com a legenda ligada (padrão), mostra o texto e destaca a palavra que está sendo falada.
@@ -14,33 +15,41 @@ export function Ouvir({ texto, rotulo = "Ouvir" }: { texto: string; rotulo?: str
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDisponivel(typeof window !== "undefined" && "speechSynthesis" in window);
-    return () => {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
-    };
+    setDisponivel(vozSuportada());
   }, []);
+
+  // Para de falar se a pessoa sair da tela
+  const falandoRef = useRef(false);
+  useEffect(() => {
+    falandoRef.current = falando;
+  }, [falando]);
+  useEffect(
+    () => () => {
+      if (falandoRef.current) pararFala();
+    },
+    [],
+  );
 
   if (!disponivel) return null;
 
   const alternar = () => {
-    const s = window.speechSynthesis;
     if (falando) {
-      s.cancel();
-      setFalando(false);
+      pararFala();
       return;
     }
-    const u = new SpeechSynthesisUtterance(texto);
-    u.lang = "pt-BR";
-    u.rate = 0.95;
-    u.onboundary = (ev) => setPosicao(ev.charIndex);
-    u.onend = () => {
-      setFalando(false);
-      setPosicao(-1);
-    };
-    s.cancel();
-    setPosicao(0);
-    s.speak(u);
-    setFalando(true);
+    const ok = falar(texto, {
+      velocidade: estado?.prefs.velocidadeVoz ?? 1,
+      vozURI: estado?.prefs.voz || undefined,
+      aoLimite: setPosicao,
+      aoFim: () => {
+        setFalando(false);
+        setPosicao(-1);
+      },
+    });
+    if (ok) {
+      setPosicao(0);
+      setFalando(true);
+    }
   };
 
   // Divide em palavras guardando onde cada uma começa, para achar a palavra falada
@@ -55,14 +64,14 @@ export function Ouvir({ texto, rotulo = "Ouvir" }: { texto: string; rotulo?: str
       <button
         type="button"
         onClick={alternar}
-        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold text-mare-escura hover:bg-ceu"
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border-2 border-ardosia bg-white px-3 py-1.5 text-sm font-bold text-mare-escura hover:bg-ceu"
         aria-pressed={falando}
       >
         <IconeSom />
         {falando ? "Parar" : rotulo}
       </button>
       {falando && legendas && (
-        <p className="surgir mt-2 rounded-xl border-[3px] border-ardosia bg-white p-3 text-base leading-relaxed" aria-hidden="true">
+        <p className="surgir mt-2 rounded-xl border-[3px] border-ardosia bg-white p-3 text-base leading-relaxed" aria-hidden="true" data-nao-ler>
           <span className="pixel mb-1 block text-[0.6rem] text-ardosia-suave">LEGENDA</span>
           {palavras.map((w, i) => (
             <span key={i} className={i === atual ? "legenda-palavra" : undefined}>

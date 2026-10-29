@@ -9,6 +9,7 @@ import { ProvedorRecompensa } from "./Jogo";
 import { ResumoDiario } from "./ResumoDiario";
 import { ProvedorDupla } from "@/lib/dupla";
 import { VigiaMedalhas } from "./Medalhas";
+import { BotaoLerTela, ProvedorLeitor } from "./LeitorTela";
 
 // Todas as seções do app. No celular a barra de baixo rola para o lado.
 const abasApostador = [
@@ -126,6 +127,7 @@ export function Casca({ children }: { children: ReactNode }) {
   return (
     <ProvedorRecompensa>
       <ProvedorDupla>
+      <ProvedorLeitor>
       <ResumoDiario />
       {estado && !familiar && !noInicio && <VigiaMedalhas />}
       <div className={`min-h-dvh ${noInicio ? "" : "lg:grid lg:grid-cols-[17rem_1fr]"}`}>
@@ -159,6 +161,9 @@ export function Casca({ children }: { children: ReactNode }) {
               </ul>
             </nav>
             {modo === "demo" && <p className="pixel mb-3 text-center text-xs">MODO DEMONSTRAÇÃO</p>}
+            <div className="mb-3">
+              <BotaoLerTela />
+            </div>
             {!familiar && !naCrise && botaoVontade}
           </aside>
         )}
@@ -171,6 +176,7 @@ export function Casca({ children }: { children: ReactNode }) {
             </Link>
             <div className="flex items-center gap-2">
               {modo === "demo" && <span className="pixel rounded-md border-2 border-ardosia bg-white px-2 py-0.5 text-[0.65rem]">DEMO</span>}
+              <BotaoLerTela compacto />
               <Link
                 href="/app/ajustes"
                 aria-current={ativa("/app/ajustes") ? "page" : undefined}
@@ -179,7 +185,7 @@ export function Casca({ children }: { children: ReactNode }) {
                 }`}
               >
                 <Icone nome="ajustes" />
-                Ajustes
+                <span className="max-[400px]:sr-only">Ajustes</span>
               </Link>
             </div>
           </header>
@@ -216,6 +222,7 @@ export function Casca({ children }: { children: ReactNode }) {
           </div>
         )}
       </div>
+      </ProvedorLeitor>
       </ProvedorDupla>
     </ProvedorRecompensa>
   );

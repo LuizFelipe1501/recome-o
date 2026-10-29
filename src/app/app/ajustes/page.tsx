@@ -7,6 +7,7 @@ import { useEstado } from "@/lib/estado";
 import type { Estado } from "@/lib/tipos";
 import { ativarLembretes, desativarLembretes, ehIOSsemInstalar, lembretesSuportados, mostrarLembrete, permissaoAtual } from "@/lib/lembretes";
 import { textoLembrete } from "@/lib/textoLembrete";
+import { aoMudarVozes, escolherVoz, falar, pararFala, vozSuportada, vozesPortugues } from "@/lib/voz";
 
 export default function Ajustes() {
   const { estado, atualizar, sair, apagarTudo, modo, email } = useEstado();
@@ -27,6 +28,7 @@ export default function Ajustes() {
         <h2 id="titulo-acess" className="text-xl font-bold">
           Acessibilidade
         </h2>
+        <LeituraDeTela />
         <Interruptor
           ativo={p.fonte === "grande"}
           rotulo="Letra maior"
@@ -87,8 +89,9 @@ export default function Ajustes() {
         </fieldset>
 
         <p className="pt-2 text-sm text-ardosia-suave">
-          A fonte do app foi feita para pessoas com baixa visão. Os textos principais têm o botão Ouvir, que lê em voz alta com a voz
-          do celular. Nos campos de texto, o botão Falar em vez de digitar transcreve o que você diz, sem precisar escrever.
+          A fonte do app foi feita para pessoas com baixa visão. Com a leitura de tela ligada, o botão Ler aparece no topo de todas as
+          telas. Alguns textos também têm o botão Ouvir. Nos campos de texto, o botão Falar em vez de digitar transcreve o que você diz.
+          Quem já usa o TalkBack (Android) ou o VoiceOver (iPhone) pode continuar usando: o app tem rótulos para eles.
         </p>
       </section>
 
@@ -165,6 +168,121 @@ export default function Ajustes() {
           estudos como GamblingLess, Help on Demand, e-Estesia e LENAD III. Não substitui atendimento profissional.
         </p>
       </section>
+    </div>
+  );
+}
+
+// Liga a leitura de tela do app e deixa escolher a voz e a velocidade
+function LeituraDeTela() {
+  const { estado, atualizar } = useEstado();
+  const [suporte, setSuporte] = useState<boolean | null>(null);
+  const [vozes, setVozes] = useState<SpeechSynthesisVoice[]>([]);
+
+  useEffect(() => {
+    const ler = () => setVozes(vozesPortugues());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSuporte(vozSuportada());
+    ler();
+    const sair = aoMudarVozes(ler);
+    // Algumas vozes demoram a carregar: confere de novo depois de um instante
+    const t = setTimeout(ler, 800);
+    return () => {
+      sair();
+      clearTimeout(t);
+    };
+  }, []);
+
+  if (!estado || suporte === null) return null;
+  const p = estado.prefs;
+  const setPref = <K extends keyof Estado["prefs"]>(k: K, v: Estado["prefs"][K]) =>
+    atualizar((e) => ({ ...e, prefs: { ...e.prefs, [k]: v } }));
+  const testar = (texto: string, vel = p.velocidadeVoz, voz = p.voz) => falar(texto, { velocidade: vel, vozURI: voz || undefined });
+
+  if (!suporte) {
+    return (
+      <div className="rounded-2xl border-[3px] border-ardosia bg-coral-claro p-4">
+        <p className="font-bold">Leitura de tela</p>
+        <p className="text-sm">
+          Este navegador não tem voz para ler em voz alta. Abra o NonBet no Chrome, no Edge ou no Safari, ou use o leitor do próprio
+          celular: TalkBack no Android ou VoiceOver no iPhone.
+        </p>
+      </div>
+    );
+  }
+
+  const vozEscolhida = escolherVoz(p.voz);
+
+  return (
+    <div className={`space-y-3 rounded-2xl border-[3px] border-ardosia p-1 ${p.leitorTela ? "bg-sol-claro" : "bg-white"}`}>
+      <Interruptor
+        ativo={p.leitorTela}
+        rotulo="Leitura de tela"
+        descricao="Coloca o botão Ler no topo de todas as telas. O app lê tudo em voz alta, bloco por bloco, e destaca o que está lendo."
+        aoMudar={() => {
+          const ligar = !p.leitorTela;
+          setPref("leitorTela", ligar);
+          if (ligar) testar("Leitura de tela ligada. Toque no botão Ler, no topo da tela, para eu ler tudo em voz alta.");
+          else pararFala();
+        }}
+      />
+      {p.leitorTela && (
+        <div className="space-y-4 px-3 pb-3">
+          <div>
+            <label htmlFor="velocidade-voz" className="flex justify-between font-bold">
+              Velocidade da voz
+              <span className="pixel text-xs">{p.velocidadeVoz.toFixed(1)}X</span>
+            </label>
+            <input
+              id="velocidade-voz"
+              type="range"
+              min={0.6}
+              max={1.5}
+              step={0.1}
+              value={p.velocidadeVoz}
+              onChange={(e) => setPref("velocidadeVoz", Number(e.target.value))}
+              onPointerUp={(e) => testar("Assim fica a velocidade.", Number((e.target as HTMLInputElement).value))}
+              className="mt-1 w-full accent-[var(--ardosia)]"
+            />
+            <div className="flex justify-between text-xs text-ardosia-suave" aria-hidden="true">
+              <span>Mais devagar</span>
+              <span>Mais rápido</span>
+            </div>
+          </div>
+
+          {vozes.length > 1 && (
+            <div>
+              <label htmlFor="voz" className="font-bold">
+                Voz
+              </label>
+              <select
+                id="voz"
+                className="campo"
+                value={vozEscolhida?.voiceURI ?? ""}
+                onChange={(e) => {
+                  setPref("voz", e.target.value);
+                  testar("Olá, esta é a minha voz.", p.velocidadeVoz, e.target.value);
+                }}
+              >
+                {vozes.map((v) => (
+                  <option key={v.voiceURI} value={v.voiceURI}>
+                    {v.name.replace(/^(Microsoft|Google)\s*/, "")} {v.lang.toLowerCase().includes("br") ? "· Brasil" : "· Portugal"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {vozes.length === 0 && (
+            <p className="rounded-xl bg-white p-3 text-sm">
+              Não achei uma voz em português neste aparelho, então a leitura pode sair com sotaque. No Android, instale a voz em
+              Configurações › Idioma › Saída de texto para voz. No computador, o Chrome e o Edge já trazem vozes em português.
+            </p>
+          )}
+
+          <button type="button" className="botao-jogo botao-jogo-azul w-full" onClick={() => testar("Oi! Eu sou o Caramelo. É assim que eu leio as telas para você.")}>
+            Testar a voz
+          </button>
+        </div>
+      )}
     </div>
   );
 }
